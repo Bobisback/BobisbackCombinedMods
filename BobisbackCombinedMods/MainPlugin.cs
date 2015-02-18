@@ -21,7 +21,7 @@ namespace Plugin.Bobisback.CombinedMods {
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowCheatMenu));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowModOptions));
             SettingsManager.loadSettings();
-            
+            GUIWindowModOptions.displayMessage("Combined Mod Loaded", "Press '" + SettingsManager.hotKeys["toggleOptionsMenuHotKey"] + "' at any time to access the options menu. Thanks for checking this mod out!");
         }
 
         public override void OnEnable() {

@@ -17,6 +17,7 @@ namespace Plugin.Bobisback.CombinedMods {
         private static float topBottomMargin = 7.5f;
         private static float inbetweenMargin = 2.5f;
         private Rect windowRect = new Rect(370, 200, 240, 237);
+        private static int windowId = 503;
 
         private GUIManager guiMgr = GUIManager.getInstance();
         private String guiName = "Cheat Menu";
@@ -28,16 +29,36 @@ namespace Plugin.Bobisback.CombinedMods {
             updateTimer.Start();
         }
 
+        void Update() {
+            if (Input.GetKeyDown(SettingsManager.hotKeys["toggleCheatMenuHotKey"])) {
+                if (SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu] == false) {
+                    SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu] = true;
+                    AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().DeSelect();
+                    AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
+                } else {
+                    SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu] = false;
+                }
+            }
+        }
+
         void OnGUI() {
             if (guiMgr.inGame && !guiMgr.gameOver) {
-                if (SettingsManager.settings[(int)Preferences.toggleCheatMenu]) {
-                    windowRect = GUI.Window(503, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
-                    guiMgr.DrawWindow(windowRect, guiName, false);
+                if (SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu]) {
+                    windowRect = GUI.Window(windowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
                 }
             }
         }
 
         private void BuildOptionsMenu(int id) {
+
+            Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
+            guiMgr.DrawWindow(backGroundWindow, guiName, false);
+
+            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, this.guiMgr.closeWindowButtonStyle)) {
+                SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu] = false;
+                return;
+            }
+
             float buttonAboveHeight = topBottomMargin;
 
             Rect buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight, windowRect.width - (leftRightMargin * 2), buttonHeight);
@@ -85,13 +106,13 @@ namespace Plugin.Bobisback.CombinedMods {
             }
 
             buttonRect = new Rect(leftRightMargin, buttonAboveHeight += (buttonHeight + inbetweenMargin), windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Hunger", ref SettingsManager.settings[(int)Preferences.hunger]);
+            guiMgr.DrawCheckBox(buttonRect, "Hunger", ref SettingsManager.boolSettings[(int)Preferences.hunger]);
 
             buttonRect = new Rect(leftRightMargin, buttonAboveHeight += (buttonHeight + inbetweenMargin), windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Fatigue", ref SettingsManager.settings[(int)Preferences.fatigue]);
+            guiMgr.DrawCheckBox(buttonRect, "Fatigue", ref SettingsManager.boolSettings[(int)Preferences.fatigue]);
 
             buttonRect = new Rect(leftRightMargin, buttonAboveHeight += (buttonHeight + inbetweenMargin), windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Invincible", ref SettingsManager.settings[(int)Preferences.invincible]);
+            guiMgr.DrawCheckBox(buttonRect, "Invincible", ref SettingsManager.boolSettings[(int)Preferences.invincible]);
 
             windowRect.height = buttonAboveHeight + buttonHeight + inbetweenMargin + topBottomMargin;
 
@@ -125,18 +146,18 @@ namespace Plugin.Bobisback.CombinedMods {
         }
 
         private void updateGameVariables(object sender, ElapsedEventArgs e) {
-            if (SettingsManager.settings[(int)Preferences.toggleCheatMenu]) {
-                if (!SettingsManager.settings[(int)Preferences.hunger]) {
+            if (SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu]) {
+                if (!SettingsManager.boolSettings[(int)Preferences.hunger]) {
                     foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) {
                         settler.hunger = 0;
                     }
                 }
-                if (!SettingsManager.settings[(int)Preferences.fatigue]) {
+                if (!SettingsManager.boolSettings[(int)Preferences.fatigue]) {
                     foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) {
                         settler.fatigue = 1;
                     }
                 }
-                if (SettingsManager.settings[(int)Preferences.invincible]) {
+                if (SettingsManager.boolSettings[(int)Preferences.invincible]) {
                     foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) {
                         settler.maxHP = 200f;
                         settler.hitpoints = settler.maxHP;

@@ -13,9 +13,21 @@ namespace Plugin.Bobisback.CombinedMods {
       
         private GUIManager guiMgr = GUIManager.getInstance();
 
+        void Update() {
+            if (Input.GetKeyDown(SettingsManager.hotKeys["toggleTripleSpeedHotKey"])) {
+                if (SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed] == false) {
+                    SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed] = true;
+                    AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().DeSelect();
+                    AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
+                } else {
+                    SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed] = false;
+                }
+            }
+        }
+
         void OnGUI() {
             if (guiMgr.inGame && !guiMgr.gameOver) {
-                if (SettingsManager.settings[(int)Preferences.toggleTripleSpeed]) {
+                if (SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed]) {
                     GameSpeedGUI();
                 }
             }

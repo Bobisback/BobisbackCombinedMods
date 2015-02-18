@@ -19,9 +19,10 @@ namespace Plugin.Bobisback.CombinedMods {
         private static float topBottomMargin = 7.5f;
         private static float inbetweenMargin = 2.5f;
         private Rect windowRect = new Rect(180, 300, 240, 148);
+        private static int windowId = 502;
 
         private GUIManager guiMgr = GUIManager.getInstance();
-        private String guiName = "Active Mods";
+        private String guiName = "Active Mod GUI's";
 
         private bool displayGetDllName = false;
         private string tempName = "plugin2.dll";
@@ -37,11 +38,38 @@ namespace Plugin.Bobisback.CombinedMods {
             updateTimer.Elapsed += updateDisplay;
         }
 
-        public static void displayErrorMessage(string error) {
-            displayErrorMessage("An Error has Occurred", error);
+        void Update() {
+            if (Input.GetKeyDown(SettingsManager.hotKeys["toggleOptionsMenuHotKey"])) {
+                if (SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu] == false) {
+                    SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu] = true;
+                    AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().DeSelect();
+                    AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
+                } else {
+                    SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu] = false;
+                }
+            }
         }
 
-        public static void displayErrorMessage(string title, string error) {
+        void OnGUI() {
+            if (SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu]) {
+                windowRect = GUI.Window(windowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
+            }
+
+            if (showErrorDialog) {
+                displayErrorDialog();
+                updateTimer.Start();
+            }
+
+            if (displayGetDllName) {
+                getDllName();
+            }
+        }
+
+        public static void displayErrorMessage(string error) {
+            displayMessage("An Error has Occurred", error);
+        }
+
+        public static void displayMessage(string title, string error) {
             errorMessageTitle = title;
             errorMessage = error;
             showErrorDialog = true;
@@ -60,46 +88,26 @@ namespace Plugin.Bobisback.CombinedMods {
             guiMgr.DrawTextCenteredWhite(displayErrorRect, errorMessage);
         }
 
-        void OnGUI() {
-            if (!guiMgr.inGame) {
-                if (SettingsManager.settings[(int)Preferences.toggleOptionsMenu]) {
-                    windowRect = GUI.Window(502, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
-                    guiMgr.DrawWindow(windowRect, guiName, false);
-                }
-
-                if (showErrorDialog) {
-                    displayErrorDialog();
-                    updateTimer.Start();
-                }
-
-                if (displayGetDllName) {
-                    getDllName();
-                }
-            }
-        }
-
         private void BuildOptionsMenu(int id) {
 
-            /*if (windowRect.Contains(Event.current.mousePosition)) {
-                SettingsManager.settings[(int)Preferences.toggleOptionsMenu] = true;
-                this.guiMgr.mouseInGUI = true;
-            }
+            Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
+            guiMgr.DrawWindow(backGroundWindow, guiName, false);
 
-            if (GUI.Button(new Rect(windowRect.xMax - 24f, windowRect.yMin + 4f, 20f, 20f), string.Empty, this.guiMgr.closeWindowButtonStyle)) {
-                SettingsManager.settings[(int)Preferences.toggleOptionsMenu] = false;
+            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, this.guiMgr.closeWindowButtonStyle)) {
+                SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu] = false;
                 return;
-            }*/
+            }
 
             float buttonAboveHeight = topBottomMargin;
 
             Rect buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight, windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Idle Settlers Mod", ref SettingsManager.settings[(int)Preferences.toggleIdleSettlers]);
+            guiMgr.DrawCheckBox(buttonRect, "Idle Settlers Mod", ref SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers]);
 
             buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Game Speed Mod", ref SettingsManager.settings[(int)Preferences.toggleTripleSpeed]);
+            guiMgr.DrawCheckBox(buttonRect, "Game Speed Mod", ref SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed]);
 
             buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Cheat Menu Mod", ref SettingsManager.settings[(int)Preferences.toggleCheatMenu]);
+            guiMgr.DrawCheckBox(buttonRect, "Cheat Menu Mod", ref SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu]);
 
             buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
             guiMgr.DrawTextCenteredBlack(buttonRect, "3rd Party mods");
@@ -116,23 +124,22 @@ namespace Plugin.Bobisback.CombinedMods {
 
                     if (SettingsManager.pluginList[i].shouldLoadPlugin) {
                         if (SettingsManager.pluginList[i].displayToggle) {
-                            displayErrorMessage("Plugin Loaded", "Plugin '" + SettingsManager.pluginList[i].fileName + "' Loaded.");
+                            displayMessage("Plugin Loaded", "Plugin '" + SettingsManager.pluginList[i].fileName + "' Loaded.");
                         }
                         SettingsManager.pluginList[i].displayToggle = false;
                         BobisbackPluginManager.loadPlugin(SettingsManager.pluginList[i]);
                     } else {
                         if (!SettingsManager.pluginList[i].displayToggle) {
-                            displayErrorMessage("Plugin Unloaded", "Plugin '" + SettingsManager.pluginList[i].fileName + "' unloaded.\nRestart Required.");
+                            displayMessage("Plugin Unloaded", "Plugin '" + SettingsManager.pluginList[i].fileName + "' unloaded.\nRestart Required.");
                         }
                         SettingsManager.pluginList[i].displayToggle = true;
-                        //BobisbackPluginManager.unLoadPlugin(SettingsManager.pluginList[i]);
                     }
 
                     buttonRect.x += buttonRect.width;
                     buttonRect.height = 20f;
                     buttonRect.width = 20f;
                     if (GUI.Button(buttonRect, string.Empty, this.guiMgr.closeWindowButtonStyle)) {
-                        displayErrorMessage("Remove Plugin", "The plugin named '" + SettingsManager.pluginList[i].fileName + "' was unloaded and removed. Restart is Required.");
+                        displayMessage("Remove Plugin", "The plugin named '" + SettingsManager.pluginList[i].fileName + "' was unloaded and removed. Restart is Required.");
                         SettingsManager.pluginList[i].removeFromListAtClose = true;
                     }
                 }
@@ -160,7 +167,7 @@ namespace Plugin.Bobisback.CombinedMods {
                         if (index == -1) { //plugin is not in list make a new plugin
                             PluginInfo newPlugin = new PluginInfo(tempName);
                             SettingsManager.pluginList.Add(newPlugin);
-                            displayErrorMessage("Plugin Added", "Activation Needed\n(Check the box next to it)");
+                            displayMessage("Plugin Added", "Activation Needed\n(Check the box next to it)");
                         } else {
                             SettingsManager.pluginList[index].removeFromListAtClose = false;
                             SettingsManager.pluginList[index].shouldLoadPlugin = true;
@@ -184,9 +191,6 @@ namespace Plugin.Bobisback.CombinedMods {
             if (containsABadCharacter.IsMatch(testName) || testName.Contains(' ')) {
                 return false;
             };
-
-            // other checks for UNC, drive-path format, etc
-
             return true;
         }
     }

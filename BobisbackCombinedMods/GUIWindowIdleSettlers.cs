@@ -20,36 +20,113 @@ namespace Plugin.Bobisback.CombinedMods {
         private static float buttonHeight = 32;
         private static float leftRightMargin = 15;
         private static float topBottomMargin = 7.5f;
-        //private static float buttonStartHeight = 0f;
         private static float inbetweenMargin = 2.5f;
         private Rect windowRect = new Rect(60, 140, 300, 126);
+        private static int windowId = 501;
 
         private GUIManager guiMgr = GUIManager.getInstance();
         private String guiName = "Idle Settlers";
         private List<APlayableEntity> idleSettlers = new List<APlayableEntity>();
 
-        //we only wanna update hte idle setters once ever second or so
+        //we only wanna update The idle setters once ever second or so
         private static Timer updateTimer = new Timer(500);
 
-        
+        private static int currentIdleSettlerIndex = -1;
+        private static APlayableEntity settlerToSelect = null;
+        private static bool selectSettler = false;
 
         void Start() {
             updateTimer.Elapsed += getIdleSettlers;
             updateTimer.Start();
         }
 
+        void Update() {
+            if (selectSettler && settlerToSelect != null) {
+
+                ControlPlayer controlPlayer = AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>();
+
+                MonoBehaviour selectedObject = UnitManager.getInstance().controllerObj.GetComponent<ControlPlayer>().selectedObject;
+                bool openSettlerWindow = false;
+                if (selectedObject != null && selectedObject.gameObject.tag == "ControllableUnit" && AManager<GUIManager>.getInstance().GetComponent<HumanSettlerWindow>().entity == selectedObject) {
+                    openSettlerWindow = true;
+                }
+
+                AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().MoveToPosition(settlerToSelect.coordinate.world);
+                AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().SelectObject(settlerToSelect.transform, openSettlerWindow);
+                selectSettler = false;
+            }
+
+            if (Input.GetKeyDown(SettingsManager.hotKeys["previousIdleSettler"])) {
+                idleSettlerTab(false);
+            }
+
+            if (Input.GetKeyDown(SettingsManager.hotKeys["nextIdleSettler"])) {
+                idleSettlerTab(true);
+            }
+
+            if (Input.GetKeyDown(SettingsManager.hotKeys["toggleIdleSettlersHotKey"])) {
+                if (SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers] == false) {
+                    SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers] = true;
+                    AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().DeSelect();
+                    AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
+                } else {
+                    SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers] = false;
+                }
+            }
+        }
+
+        private void idleSettlerTab(bool next) {
+            if (idleSettlers.Count == 0) {
+                return;
+            }
+
+            ControlPlayer controlPlayer = AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>();
+            MonoBehaviour selectedObject = UnitManager.getInstance().controllerObj.GetComponent<ControlPlayer>().selectedObject;
+            bool openSettlerWindow = false;
+            if (selectedObject != null && selectedObject.gameObject.tag == "ControllableUnit" && AManager<GUIManager>.getInstance().GetComponent<HumanSettlerWindow>().entity == selectedObject) {
+                openSettlerWindow = true;
+            }
+            if (!AManager<GUIManager>.getInstance().gameOver) {
+                if (next) {
+                    currentIdleSettlerIndex++;
+                    if (currentIdleSettlerIndex >= idleSettlers.Count) {
+                        currentIdleSettlerIndex = 0;
+                    }
+                    while (!idleSettlers[currentIdleSettlerIndex].isAlive()) {
+                        currentIdleSettlerIndex++;
+                        if (currentIdleSettlerIndex >= idleSettlers.Count) {
+                            currentIdleSettlerIndex = 0;
+                        }
+                    }
+                } else {
+                    currentIdleSettlerIndex--;
+                    if (currentIdleSettlerIndex < 0) {
+                        currentIdleSettlerIndex = idleSettlers.Count - 1;
+                    }
+                    while (!idleSettlers[currentIdleSettlerIndex].isAlive()) {
+                        currentIdleSettlerIndex--;
+                        if (currentIdleSettlerIndex < 0) {
+                            currentIdleSettlerIndex = idleSettlers.Count - 1;
+                        }
+                    }
+                }
+            }
+
+            AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().MoveToPosition(idleSettlers[currentIdleSettlerIndex].coordinate.world);
+            AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().SelectObject(idleSettlers[currentIdleSettlerIndex].transform, openSettlerWindow);
+        }
+
         void OnGUI() {
             if (guiMgr.inGame && !guiMgr.gameOver) {
-                if (SettingsManager.settings[(int)Preferences.toggleIdleSettlers]) {
-                    windowRect = GUI.Window(501, windowRect, BuildIdleSettlerMenu, string.Empty, guiMgr.windowBoxStyle);
-                    guiMgr.DrawWindow(windowRect, guiName, false);
+                if (SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers]) {
+                    windowRect = GUI.Window(windowId, windowRect, BuildIdleSettlerMenu, string.Empty, guiMgr.windowBoxStyle);
                 }
             }
         }
 
         public void getIdleSettlers(object sender, ElapsedEventArgs e) {
             if (guiMgr.inGame && !guiMgr.gameOver) { // make sure we are in the game
-                if (SettingsManager.settings[(int)Preferences.toggleIdleSettlers]) {
+                if (SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers]) {
                     foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) {
                         //if (settler.taskStackContains(typeof(TaskWait)) && !(settler.taskStackContains(typeof(WorkGuardPosition)) || settler.taskStackContains(typeof(WorkPatrolRoute)))) {
                         if (settler.getWhatImDoing() != null) {
@@ -60,7 +137,7 @@ namespace Plugin.Bobisback.CombinedMods {
                             } else {
                                 idleSettlers.Remove(settler);
                             }
-                            if (SettingsManager.settings[(int)Preferences.showNotifications]) {
+                            if (SettingsManager.boolSettings[(int)Preferences.showNotifications]) {
                                 GUIManager.getInstance().AddTextLine("Idle Settlers: " + idleSettlers.Count);
                             }
                             idleSettlers = idleSettlers.OrderBy(o => o.unitName).ToList();
@@ -75,22 +152,22 @@ namespace Plugin.Bobisback.CombinedMods {
             bool checkPassed = true;
             AProfession profession = settler.getProfession();
 
-            if (SettingsManager.settings[(int)Preferences.excludeArcher]) {
+            if (SettingsManager.boolSettings[(int)Preferences.excludeArcher]) {
                 if (profession.getProfessionName().Equals("Archer")) {
                     checkPassed = false;
                 }
             }
-            if (SettingsManager.settings[(int)Preferences.excludeInfantry]) {
+            if (SettingsManager.boolSettings[(int)Preferences.excludeInfantry]) {
                 if (profession.getProfessionName().Equals("Infantry")) {
                     checkPassed = false;
                 }
             }
-            if (SettingsManager.settings[(int)Preferences.excludeTrader]) {
+            if (SettingsManager.boolSettings[(int)Preferences.excludeTrader]) {
                 if (profession.getProfessionName().Equals("Trader")) {
                     checkPassed = false;
                 }
             }
-            if (SettingsManager.settings[(int)Preferences.excludeHerder]) {
+            if (SettingsManager.boolSettings[(int)Preferences.excludeHerder]) {
                 if (profession.getProfessionName().Equals("Herder")) {
                     checkPassed = false;
                 }
@@ -99,25 +176,34 @@ namespace Plugin.Bobisback.CombinedMods {
         }
 
         void BuildIdleSettlerMenu(int windowID) {
+
+            Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
+            guiMgr.DrawWindow(backGroundWindow, guiName, false);
+
+            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, this.guiMgr.closeWindowButtonStyle)) {
+                SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers] = false;
+                return;
+            }
+
             float buttonAboveHeight = topBottomMargin;
 
             Rect checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(checkBoxRect, "Show Exclude Options", ref SettingsManager.settings[(int)Preferences.showOptions]);
-            if (SettingsManager.settings[(int)Preferences.showOptions]) {
+            guiMgr.DrawCheckBox(checkBoxRect, "Show Exclude Options", ref SettingsManager.boolSettings[(int)Preferences.showOptions]);
+            if (SettingsManager.boolSettings[(int)Preferences.showOptions]) {
                 checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight + (buttonHeight + inbetweenMargin), (windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2), buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Archer", ref SettingsManager.settings[(int)Preferences.excludeArcher]);
+                guiMgr.DrawCheckBox(checkBoxRect, "Archer", ref SettingsManager.boolSettings[(int)Preferences.excludeArcher]);
 
                 checkBoxRect = new Rect((leftRightMargin) + ((windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2)) + inbetweenMargin, buttonAboveHeight += (buttonHeight + inbetweenMargin), (windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2), buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Infantry", ref SettingsManager.settings[(int)Preferences.excludeInfantry]);
+                guiMgr.DrawCheckBox(checkBoxRect, "Infantry", ref SettingsManager.boolSettings[(int)Preferences.excludeInfantry]);
 
                 checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight + (buttonHeight + inbetweenMargin), (windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2), buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Trader", ref SettingsManager.settings[(int)Preferences.excludeTrader]);
+                guiMgr.DrawCheckBox(checkBoxRect, "Trader", ref SettingsManager.boolSettings[(int)Preferences.excludeTrader]);
 
                 checkBoxRect = new Rect((leftRightMargin) + ((windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2)) + inbetweenMargin, buttonAboveHeight += (buttonHeight + inbetweenMargin), (windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2), buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Herder", ref SettingsManager.settings[(int)Preferences.excludeHerder]);
+                guiMgr.DrawCheckBox(checkBoxRect, "Herder", ref SettingsManager.boolSettings[(int)Preferences.excludeHerder]);
 
                 checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight += (buttonHeight + inbetweenMargin), windowRect.width - leftRightMargin * 2, buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Show Notifications", ref SettingsManager.settings[(int)Preferences.showNotifications]);
+                guiMgr.DrawCheckBox(checkBoxRect, "Show Notifications", ref SettingsManager.boolSettings[(int)Preferences.showNotifications]);
             }
 
             bool isOdd = true;
@@ -146,38 +232,15 @@ namespace Plugin.Bobisback.CombinedMods {
             }
 
             if (guiMgr.DrawButton(viewRect, settler.unitName.Split(' ').FirstOrDefault())) {
-                selectSettler(settler);
+                settlerToSelect = settler;
+                selectSettler = true;
             }
         }
 
-        public void selectSettler(APlayableEntity settler) {
-            //if (objectToSelect.GetComponent<APlayableEntity>() != null) {
-            //if (settler.faction == this) {
-            
-                /*controlPlayer.selectedObject = settler;
-                settler.Select();
-
-                controlPlayer.entityHighlight.renderer.enabled = true;
-                controlPlayer.entityDestination.renderer.enabled = true;
-                AManager<GUIManager>.getInstance().GetComponent<HumanSettlerWindow>().entity = settler;*/
-            //}
-            /*} else {
-                if (objectToSelect.GetComponent<BuildStructure>() != null) {
-                    BuildStructure component2 = objectToSelect.GetComponent<BuildStructure>();
-                    this.selectedObject = component2;
-                    component2.Select();
-                } else {
-                    if (objectToSelect.GetComponent<MonoBehaviour>() != null && objectToSelect.GetComponent<MonoBehaviour>() is IGUIWindow) {
-                        controlPlayer.selectedObject = objectToSelect.GetComponent<MonoBehaviour>();
-                    }
-                }
-            }*/
-            //AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().SelectObject(settler.transform, false);
-            //AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().SelectObject(UnitManager.getInstance().playerUnits.Find(x => x.unitName == settler.unitName).transform, false);
-            //AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().MoveToPosition(settler.coordinate.world);
-        }
-
-        void Update() { }
+        /*public void selectSettler(APlayableEntity settler) {
+            AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().MoveToPosition(settler.coordinate.world);
+            AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().SelectObject(settler.transform, false);
+        }*/
     }
 }
 
