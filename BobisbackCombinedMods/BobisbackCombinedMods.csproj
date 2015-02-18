@@ -49,7 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BobisbackPluginManager.cs" />
-    <Compile Include="CheatMod.cs" />
     <Compile Include="GUIWindowModOptions.cs" />
     <Compile Include="GUIWindowCheatMenu.cs" />
     <Compile Include="GUIWindowIdleSettlers.cs" />
