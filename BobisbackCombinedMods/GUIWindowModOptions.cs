@@ -27,7 +27,6 @@ namespace Plugin.Bobisback.CombinedMods {
         private bool displayGetDllName = false;
         private string tempName = "plugin2.dll";
 
-        //we only wanna update hte idle setters once ever second or so
         private static Timer updateTimer = new Timer(5000);
         private static bool showErrorDialog = false;
         private static string errorMessageTitle = "An Error has Occurred";
@@ -102,6 +101,9 @@ namespace Plugin.Bobisback.CombinedMods {
 
             Rect buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight, windowRect.width - (leftRightMargin * 2), buttonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Idle Settlers Mod", ref SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers]);
+
+            buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Control Groups", ref SettingsManager.boolSettings[(int)Preferences.enableControlGroups]);
 
             buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Game Speed Mod", ref SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed]);

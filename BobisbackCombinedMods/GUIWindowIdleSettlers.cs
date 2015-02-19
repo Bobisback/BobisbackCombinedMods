@@ -42,9 +42,6 @@ namespace Plugin.Bobisback.CombinedMods {
 
         void Update() {
             if (selectSettler && settlerToSelect != null) {
-
-                ControlPlayer controlPlayer = AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>();
-
                 MonoBehaviour selectedObject = UnitManager.getInstance().controllerObj.GetComponent<ControlPlayer>().selectedObject;
                 bool openSettlerWindow = false;
                 if (selectedObject != null && selectedObject.gameObject.tag == "ControllableUnit" && AManager<GUIManager>.getInstance().GetComponent<HumanSettlerWindow>().entity == selectedObject) {

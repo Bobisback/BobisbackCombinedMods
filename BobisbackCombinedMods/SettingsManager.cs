@@ -18,6 +18,8 @@ namespace Plugin.Bobisback.CombinedMods {
         toggleOptionsMenu,
         //GUIWindowCheatMenu options
         toggleCheatMenu, hunger, fatigue, invincible,
+        //Control group options
+        enableControlGroups,
         //Total number of options always needs to be last aka add more options above
         totalOptions
     };
@@ -27,7 +29,9 @@ namespace Plugin.Bobisback.CombinedMods {
             true, //init GUIWindowTripleSpeed options
             true, false, false, false, false, false, false, //init GUIWindowIdleSettlers options
             true, //init GUIWindowModOptions options
-            false, true, true, false };//init GUIWindowCheatMenu options 
+            false, true, true, false, //init GUIWindowCheatMenu options 
+            true //init control groups
+        };
 
         public static List<PluginInfo> pluginList = new List<PluginInfo>();
 
@@ -38,6 +42,13 @@ namespace Plugin.Bobisback.CombinedMods {
             {"toggleCheatMenuHotKey", KeyCode.M},
             {"previousIdleSettler", KeyCode.Comma},
             {"nextIdleSettler", KeyCode.Period},
+        };
+
+        public static List<string> controlGroupSettlers = new List<string>(11) {
+            string.Empty, string.Empty, string.Empty, 
+            string.Empty, string.Empty, string.Empty, 
+            string.Empty, string.Empty, string.Empty, 
+            string.Empty,  string.Empty
         };
 
         public static void loadSettings() {
@@ -57,6 +68,13 @@ namespace Plugin.Bobisback.CombinedMods {
                     var hotKey = hotKeys.ElementAt(i);
                     if (buffer.Contains(hotKey.Key)) {
                         extractHotKey(hotKey, buffer);
+                    }
+                }
+
+                //sw.WriteLine("//This are the current settlers assigned to control groups");
+                for (int i = 0; i < controlGroupSettlers.Count; i++) {
+                    if (buffer.Contains("<controlGroup=" + i + ">")) {
+                        extractSettlerControlGroup("<controlGroup=" + i + ">", buffer, i);
                     }
                 }
 
@@ -95,6 +113,11 @@ namespace Plugin.Bobisback.CombinedMods {
                     sw.WriteLine(hotKey.Key + " " + hotKey.Value.ToString());
                 }
 
+                sw.WriteLine("//This are the current settlers assigned to control groups");
+                for (int i = 0; i < controlGroupSettlers.Count; i++) {
+                    sw.WriteLine("<controlGroup=" + i + ">" + (string.IsNullOrEmpty(controlGroupSettlers[i]) ? "" : controlGroupSettlers[i]) + "</controlGroup>");
+                }
+
                 sw.WriteLine("//Below are all all plugins being loaded. Plugins have the structure 'PluginFileName(n) fileName shouldLoadPlugin'");
                 sw.WriteLine("//With n being the amount of plugins (has to start at 0), file name, then weather the plugin should be loaded at game start.");
                 pluginList.RemoveAll(x => x.removeFromListAtClose);
@@ -109,6 +132,16 @@ namespace Plugin.Bobisback.CombinedMods {
                 //File.WriteAllText("saves\\log.txt", "Settings Failed To Save Exception: " + e.Message);
                 Console.WriteLine("Exception: " + e.Message);
             }
+        }
+
+        private static void extractSettlerControlGroup(string stringToSearchFor, string buffer, int controlGroupIndex) {
+            int start = 0, end = 0;
+            string settlerName = string.Empty;
+            start = buffer.IndexOf(stringToSearchFor) + stringToSearchFor.Length;
+            end = buffer.IndexOf("</controlGroup>", start);
+            settlerName = buffer.Substring(start, end - start);
+            settlerName = string.IsNullOrEmpty(settlerName) ? string.Empty : settlerName;
+            controlGroupSettlers[controlGroupIndex] = settlerName;
         }
 
         private static void extractHotKey(KeyValuePair<string, KeyCode> hotKey, string buffer) {

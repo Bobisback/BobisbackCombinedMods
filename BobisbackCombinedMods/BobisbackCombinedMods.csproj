@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BobisbackPluginManager.cs" />
+    <Compile Include="GUIWindowControlGroup.cs" />
     <Compile Include="GUIWindowModOptions.cs" />
     <Compile Include="GUIWindowCheatMenu.cs" />
     <Compile Include="GUIWindowIdleSettlers.cs" />
