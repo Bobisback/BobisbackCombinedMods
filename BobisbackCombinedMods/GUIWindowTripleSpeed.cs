@@ -9,10 +9,16 @@ using Timber_and_Stone.Event;
 using EventHandler = Timber_and_Stone.API.Event.EventHandler;
 
 namespace Plugin.Bobisback.CombinedMods {
+
+    /// <summary>
+    /// This class handles all game logic and display of the Increased game speed mod.
+    /// </summary>
     public class GUIWindowTripleSpeed : MonoBehaviour {
       
         private GUIManager guiMgr = GUIManager.getInstance();
 
+        //This is called alot less then ongui and can have some model data manipulation in it.
+        //This is also were any hotkeys are intercepted.
         void Update() {
             if (Input.GetKeyDown(SettingsManager.hotKeys["toggleTripleSpeedHotKey"])) {
                 if (SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed] == false) {
@@ -25,6 +31,8 @@ namespace Plugin.Bobisback.CombinedMods {
             }
         }
 
+        //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
+        //No model data should built/manipulated.
         void OnGUI() {
             if (guiMgr.inGame && !guiMgr.gameOver) {
                 if (SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed]) {
@@ -33,7 +41,8 @@ namespace Plugin.Bobisback.CombinedMods {
             }
         }
 
-        public void GameSpeedGUI() {
+        //This function just displays the Gmae Speed GUI at the top right of the screen.
+        private void GameSpeedGUI() {
             int num = Screen.width - 120;
             int num2 = 88;
             if (Screen.width > 1520) {

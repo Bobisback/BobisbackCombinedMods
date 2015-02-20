@@ -13,7 +13,14 @@ using System.Reflection;
 using System.Timers;
 
 namespace Plugin.Bobisback.CombinedMods {
+
+    /// <summary>
+    /// This class handles all the logic and display of the options menu, this includes
+    /// loading mods, truning mods on and off and unloading mods.
+    /// </summary>
     class GUIWindowModOptions : MonoBehaviour {
+
+        //all vars needed for displaying the windows
         private static float buttonHeight = 32;
         private static float leftRightMargin = 15;
         private static float topBottomMargin = 7.5f;
@@ -27,16 +34,20 @@ namespace Plugin.Bobisback.CombinedMods {
         private bool displayGetDllName = false;
         private string tempName = "plugin2.dll";
 
+        //vars for displaying messages error and regular.
         private static Timer updateTimer = new Timer(5000);
         private static bool showErrorDialog = false;
         private static string errorMessageTitle = "An Error has Occurred";
         private static string errorMessage = "";
 
-
+        //This function is called once when this window starts up. 
+        //Do any one time setup/init things in this function.
         void Start() {
             updateTimer.Elapsed += updateDisplay;
         }
 
+        //This is called alot less then ongui and can have some model data manipulation in it.
+        //This is also were any hotkeys are intercepted.
         void Update() {
             if (Input.GetKeyDown(SettingsManager.hotKeys["toggleOptionsMenuHotKey"])) {
                 if (SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu] == false) {
@@ -49,6 +60,8 @@ namespace Plugin.Bobisback.CombinedMods {
             }
         }
 
+        //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
+        //No model data should built/manipulated.
         void OnGUI() {
             if (SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu]) {
                 windowRect = GUI.Window(windowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);

@@ -17,6 +17,7 @@ using System.IO;
 namespace Plugin.Bobisback.CombinedMods {
     public class GUIWindowIdleSettlers : MonoBehaviour {
 
+        //vars needed for window placement
         private static float buttonHeight = 32;
         private static float leftRightMargin = 15;
         private static float topBottomMargin = 7.5f;
@@ -35,13 +36,17 @@ namespace Plugin.Bobisback.CombinedMods {
         private static APlayableEntity settlerToSelect = null;
         private static bool selectSettler = false;
 
+        //This function is called once when this window starts up. 
+        //Do any one time setup/init things in this function.
         void Start() {
             updateTimer.Elapsed += getIdleSettlers;
             updateTimer.Start();
         }
 
+        //This is called alot less then ongui and can have some model data manipulation in it.
+        //This is also were any hotkeys are intercepted.
         void Update() {
-            if (selectSettler && settlerToSelect != null) {
+            if (selectSettler && settlerToSelect != null) { //if we are suppose to select a settler and there is a settler to select
                 MonoBehaviour selectedObject = UnitManager.getInstance().controllerObj.GetComponent<ControlPlayer>().selectedObject;
                 bool openSettlerWindow = false;
                 if (selectedObject != null && selectedObject.gameObject.tag == "ControllableUnit" && AManager<GUIManager>.getInstance().GetComponent<HumanSettlerWindow>().entity == selectedObject) {
@@ -72,6 +77,20 @@ namespace Plugin.Bobisback.CombinedMods {
             }
         }
 
+        //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
+        //No model data should built/manipulated.
+        void OnGUI() {
+            if (guiMgr.inGame && !guiMgr.gameOver) {
+                if (SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers]) {
+                    windowRect = GUI.Window(windowId, windowRect, BuildIdleSettlerMenu, string.Empty, guiMgr.windowBoxStyle);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This function will move through idle settlers forward and backwords depending on the bool
+        /// </summary>
+        /// <param name="next">Go to the next idle settler or the previous idle settler.</param>
         private void idleSettlerTab(bool next) {
             if (idleSettlers.Count == 0) {
                 return;
@@ -85,22 +104,22 @@ namespace Plugin.Bobisback.CombinedMods {
             }
             if (!AManager<GUIManager>.getInstance().gameOver) {
                 if (next) {
-                    currentIdleSettlerIndex++;
-                    if (currentIdleSettlerIndex >= idleSettlers.Count) {
+                    currentIdleSettlerIndex++; //go to next settler
+                    if (currentIdleSettlerIndex >= idleSettlers.Count) { //do we need to go to the begining of hte list?
                         currentIdleSettlerIndex = 0;
                     }
-                    while (!idleSettlers[currentIdleSettlerIndex].isAlive()) {
+                    while (!idleSettlers[currentIdleSettlerIndex].isAlive()) { //make sure it is not dead, if it is go to the next one.
                         currentIdleSettlerIndex++;
                         if (currentIdleSettlerIndex >= idleSettlers.Count) {
                             currentIdleSettlerIndex = 0;
                         }
                     }
                 } else {
-                    currentIdleSettlerIndex--;
-                    if (currentIdleSettlerIndex < 0) {
+                    currentIdleSettlerIndex--; //go to the previous settler
+                    if (currentIdleSettlerIndex < 0) { //if we are at the begining of the list go to the last
                         currentIdleSettlerIndex = idleSettlers.Count - 1;
                     }
-                    while (!idleSettlers[currentIdleSettlerIndex].isAlive()) {
+                    while (!idleSettlers[currentIdleSettlerIndex].isAlive()) { //make sure we are not selecting dead settlers
                         currentIdleSettlerIndex--;
                         if (currentIdleSettlerIndex < 0) {
                             currentIdleSettlerIndex = idleSettlers.Count - 1;
@@ -109,34 +128,35 @@ namespace Plugin.Bobisback.CombinedMods {
                 }
             }
 
+            //move to the settler and select him
             AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().MoveToPosition(idleSettlers[currentIdleSettlerIndex].coordinate.world);
             AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().SelectObject(idleSettlers[currentIdleSettlerIndex].transform, openSettlerWindow);
         }
 
-        void OnGUI() {
-            if (guiMgr.inGame && !guiMgr.gameOver) {
-                if (SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers]) {
-                    windowRect = GUI.Window(windowId, windowRect, BuildIdleSettlerMenu, string.Empty, guiMgr.windowBoxStyle);
-                }
-            }
-        }
-
-        public void getIdleSettlers(object sender, ElapsedEventArgs e) {
+        /// <summary>
+        /// This function is called every time the time goes off as we do not want to update a 1000 times a second.
+        /// Once this function is called it will heck to make sure it should run and then go get all the idle settlers
+        /// in the game. It does this by checking the getWhatImDoing() function on the settler.
+        /// </summary>
+        /// <param name="sender">This is not used but needed for the timer</param>
+        /// <param name="e">This is not used but needed for the timer</param>
+        private void getIdleSettlers(object sender, ElapsedEventArgs e) {
             if (guiMgr.inGame && !guiMgr.gameOver) { // make sure we are in the game
-                if (SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers]) {
-                    foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) {
-                        //if (settler.taskStackContains(typeof(TaskWait)) && !(settler.taskStackContains(typeof(WorkGuardPosition)) || settler.taskStackContains(typeof(WorkPatrolRoute)))) {
-                        if (settler.getWhatImDoing() != null) {
+                if (SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers]) { //make sure hte mod is enabled
+                    foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) { //get all settlers
+                        if (settler.getWhatImDoing() != null) { //make sure there is something to get
+                            //see if the settler is waiting or doing nothing, then exclude any prefessions we need to exclude
                             if ((settler.getWhatImDoing().Contains("Waiting") || settler.getWhatImDoing().Equals("")) && passProfessionCheck(settler)) {
-                                if (!idleSettlers.Contains(settler)) {
+                                if (!idleSettlers.Contains(settler)) { //if it is not in the list put it in there
                                     idleSettlers.Add(settler);
-                                }
-                            } else {
+                                } //otherwise leave it in there
+                            } else { // if it does not meet the above conditions we do not want it in the list
                                 idleSettlers.Remove(settler);
                             }
                             if (SettingsManager.boolSettings[(int)Preferences.showNotifications]) {
                                 GUIManager.getInstance().AddTextLine("Idle Settlers: " + idleSettlers.Count);
                             }
+                            //sort the list based on unit name
                             idleSettlers = idleSettlers.OrderBy(o => o.unitName).ToList();
                         }
                     }
@@ -145,6 +165,11 @@ namespace Plugin.Bobisback.CombinedMods {
             }
         }
 
+        /// <summary>
+        /// This will check are settings and decide to include or exculde certain settlers based on those settings.
+        /// </summary>
+        /// <param name="settler">The settler to check if we want to include or exclude them</param>
+        /// <returns>Should the settler be excluded or included.</returns>
         private bool passProfessionCheck(APlayableEntity settler) {
             bool checkPassed = true;
             AProfession profession = settler.getProfession();
@@ -172,6 +197,10 @@ namespace Plugin.Bobisback.CombinedMods {
             return checkPassed;
         }
 
+        /// <summary>
+        /// This function will build the idle settler window.
+        /// </summary>
+        /// <param name="windowID">The id of the window we are building.</param>
         void BuildIdleSettlerMenu(int windowID) {
 
             Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
@@ -184,8 +213,11 @@ namespace Plugin.Bobisback.CombinedMods {
 
             float buttonAboveHeight = topBottomMargin;
 
+            //show options
             Rect checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
             guiMgr.DrawCheckBox(checkBoxRect, "Show Exclude Options", ref SettingsManager.boolSettings[(int)Preferences.showOptions]);
+
+            //build the options menu if needed
             if (SettingsManager.boolSettings[(int)Preferences.showOptions]) {
                 checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight + (buttonHeight + inbetweenMargin), (windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2), buttonHeight);
                 guiMgr.DrawCheckBox(checkBoxRect, "Archer", ref SettingsManager.boolSettings[(int)Preferences.excludeArcher]);
@@ -205,6 +237,7 @@ namespace Plugin.Bobisback.CombinedMods {
 
             bool isOdd = true;
 
+            //display all the idle settings in a neat way
             if (idleSettlers.Count == 0) {
                 Rect labelRect = new Rect(leftRightMargin, buttonAboveHeight += (buttonHeight + topBottomMargin), windowRect.width - leftRightMargin * 2, buttonHeight);
                 guiMgr.DrawTextCenteredBlack(labelRect, "None");
@@ -219,7 +252,14 @@ namespace Plugin.Bobisback.CombinedMods {
             GUI.DragWindow();
         }
 
-        public void buildLabel(APlayableEntity settler, float buttonAboveHeight, bool isOdd) {
+        /// <summary>
+        /// This will build a button to display a idle settler. 
+        /// It also has the logic in it to handle moving to and selecting a settler.
+        /// </summary>
+        /// <param name="settler">The settler that needs to be displayed</param>
+        /// <param name="buttonAboveHeight">The y coord needed relative to all the views above it</param>
+        /// <param name="isOdd">Is this a odd button.</param>
+        private void buildLabel(APlayableEntity settler, float buttonAboveHeight, bool isOdd) {
 
             Rect viewRect;
             if (isOdd) {
@@ -233,47 +273,5 @@ namespace Plugin.Bobisback.CombinedMods {
                 selectSettler = true;
             }
         }
-
-        /*public void selectSettler(APlayableEntity settler) {
-            AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().MoveToPosition(settler.coordinate.world);
-            AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().SelectObject(settler.transform, false);
-        }*/
     }
 }
-
-/*
-float buttonAboveHeight = topBottomMargin;
-
-            Rect checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(checkBoxRect, "Show Exclude Options", ref showOptions);
-            if (showOptions) {
-                checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight + (buttonHeight + inbetweenMargin), (windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2), buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Archer", ref excludeArcher);
-
-                checkBoxRect = new Rect((leftRightMargin) + ((windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2)) + inbetweenMargin, buttonAboveHeight += (buttonHeight + inbetweenMargin), (windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2), buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Infantry", ref excludeInfantry);
-
-                checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight + (buttonHeight + inbetweenMargin), (windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2), buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Trader", ref excludeTrader);
-
-                checkBoxRect = new Rect((leftRightMargin) + ((windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2)) + inbetweenMargin, buttonAboveHeight += (buttonHeight + inbetweenMargin), (windowRect.width - leftRightMargin * 2) / 2 - (inbetweenMargin / 2), buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Herder", ref excludeHerder);
-
-                checkBoxRect = new Rect(leftRightMargin, buttonAboveHeight += (buttonHeight + inbetweenMargin), windowRect.width - leftRightMargin * 2, buttonHeight);
-                guiMgr.DrawCheckBox(checkBoxRect, "Show Notifications", ref showNotifications);
-            }
-
-            bool isOdd = true;
-
-            if (idleSettlers.Count == 0) {
-                Rect labelRect = new Rect(leftRightMargin, buttonAboveHeight += (buttonHeight + topBottomMargin), windowRect.width - leftRightMargin * 2, buttonHeight);
-                guiMgr.DrawTextCenteredBlack(labelRect, "None");
-            } else {
-                for (int i = 0; i < idleSettlers.Count; i++) {
-                    isOdd = i % 2 != 0;
-                    buildLabel(idleSettlers.ElementAt(i), isOdd ? buttonAboveHeight += (buttonHeight + inbetweenMargin) : buttonAboveHeight + (buttonHeight + inbetweenMargin), isOdd);
-                }
-            }
-
-            windowRect.height = buttonAboveHeight + buttonHeight + inbetweenMargin + topBottomMargin + (isOdd ? 0 : buttonHeight + inbetweenMargin);
-*/

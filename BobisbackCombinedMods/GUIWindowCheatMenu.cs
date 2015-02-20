@@ -24,11 +24,15 @@ namespace Plugin.Bobisback.CombinedMods {
 
         private static Timer updateTimer = new Timer(500);
 
+        //This function is called once when this window starts up. 
+        //Do any one time setup/init things in this function.
         void Start() {
             updateTimer.Elapsed += updateGameVariables;
             updateTimer.Start();
         }
 
+        //This is called alot less then ongui and can have some model data manipulation in it.
+        //This is also were any hotkeys are intercepted.
         void Update() {
             if (Input.GetKeyDown(SettingsManager.hotKeys["toggleCheatMenuHotKey"])) {
                 if (SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu] == false) {
@@ -41,6 +45,8 @@ namespace Plugin.Bobisback.CombinedMods {
             }
         }
 
+        //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
+        //No model data should built/manipulated.
         void OnGUI() {
             if (guiMgr.inGame && !guiMgr.gameOver) {
                 if (SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu]) {

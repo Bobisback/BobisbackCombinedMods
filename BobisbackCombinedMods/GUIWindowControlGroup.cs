@@ -17,6 +17,8 @@ namespace Plugin.Bobisback.CombinedMods {
         private float prevRealTime;
         private float thisRealTime;
 
+        //This is called alot less then ongui and can have some model data manipulation in it.
+        //This is also were any hotkeys are intercepted.
         void Update() {
             prevRealTime = thisRealTime;
             thisRealTime = Time.realtimeSinceStartup;
