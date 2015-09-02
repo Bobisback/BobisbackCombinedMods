@@ -14,21 +14,21 @@ namespace Plugin.Bobisback.CombinedMods {
     /// plugin needs to be unloaded or display a message.
     /// </summary>
     public class PluginInfo {
-        public string fileName = string.Empty;
-        public bool shouldLoadPlugin = false;
-        public bool displayToggle = true;
-        public bool removeFromListAtClose = false;
-        public bool isLoaded = false;
-        public AppDomain appDomain = null;
-        public IPlugin plugin = null;
-        public Assembly assembly = null;
+        public string FileName = string.Empty;
+        public bool ShouldLoadPlugin = false;
+        public bool DisplayToggle = true;
+        public bool RemoveFromListAtClose = false;
+        public bool IsLoaded = false;
+        public AppDomain AppDomain = null;
+        public IPlugin Plugin = null;
+        public Assembly Assembly = null;
 
         public PluginInfo(string fileName) {
-            this.fileName = fileName;
-            shouldLoadPlugin = false;
-            appDomain = null;
-            plugin = null;
-            assembly = null;
+            this.FileName = fileName;
+            ShouldLoadPlugin = false;
+            AppDomain = null;
+            Plugin = null;
+            Assembly = null;
         }
     }
 
@@ -44,18 +44,18 @@ namespace Plugin.Bobisback.CombinedMods {
         /// is flag it to make sure it does not get loaded on next start.
         /// </summary>
         /// <param name="pluginInfo">The plugin to get unlaoded from the mod.</param>
-        public static void unLoadPlugin(PluginInfo pluginInfo) {
-            if (pluginInfo.plugin != null) {
-                pluginInfo.plugin.OnDisable();
+        public static void UnLoadPlugin(PluginInfo pluginInfo) {
+            if (pluginInfo.Plugin != null) {
+                pluginInfo.Plugin.OnDisable();
             }
-            if (pluginInfo.appDomain != null) {
-                AppDomain.Unload(pluginInfo.appDomain);
+            if (pluginInfo.AppDomain != null) {
+                AppDomain.Unload(pluginInfo.AppDomain);
             }
-            pluginInfo.removeFromListAtClose = true;
-            pluginInfo.shouldLoadPlugin = false;
-            pluginInfo.appDomain = null;
-            pluginInfo.plugin = null;
-            pluginInfo.assembly = null;
+            pluginInfo.RemoveFromListAtClose = true;
+            pluginInfo.ShouldLoadPlugin = false;
+            pluginInfo.AppDomain = null;
+            pluginInfo.Plugin = null;
+            pluginInfo.Assembly = null;
         }
 
         /// <summary>
@@ -64,13 +64,13 @@ namespace Plugin.Bobisback.CombinedMods {
         /// There is no checking in place to make sure the plugins do not conflict.
         /// </summary>
         /// <param name="pluginInfo">This is the plugin that will be loaded.</param>
-        public static void loadPlugin(PluginInfo pluginInfo) {
-            if (pluginInfo.isLoaded) {
+        public static void LoadPlugin(PluginInfo pluginInfo) {
+            if (pluginInfo.IsLoaded) {
                 return;
             }
 
-            pluginInfo.shouldLoadPlugin = true;
-            FileInfo info = new FileInfo("./saves/" + pluginInfo.fileName);
+            pluginInfo.ShouldLoadPlugin = true;
+            FileInfo info = new FileInfo("./saves/" + pluginInfo.FileName);
             if (info != null && info.Exists == true) { //make sure the file is there
                 try {
                     //loading new domains do not work for some reason
@@ -79,57 +79,57 @@ namespace Plugin.Bobisback.CombinedMods {
                     //assemblyName.CodeBase = pluginInfo.fileName;
                     //pluginInfo.assembly = pluginInfo.appDomain.Load(pluginInfo.fileName);
 
-                    pluginInfo.assembly = Assembly.LoadFile("./saves/" + pluginInfo.fileName); //load file
-                    if (pluginInfo.assembly != null) {
-                        Type[] types = pluginInfo.assembly.GetTypes(); //get all classes out of file
+                    pluginInfo.Assembly = Assembly.LoadFile("./saves/" + pluginInfo.FileName); //load file
+                    if (pluginInfo.Assembly != null) {
+                        Type[] types = pluginInfo.Assembly.GetTypes(); //get all classes out of file
                         for (int i = 0; i < types.Length; i++) {
                             Type type = types[i];
                             if (typeof(IPlugin).IsAssignableFrom(type) && type.IsClass) { //find the one that is a plugin
-                                pluginInfo.plugin = (IPlugin)Activator.CreateInstance(type); //create that class
+                                pluginInfo.Plugin = (IPlugin)Activator.CreateInstance(type); //create that class
                             }
                         }
                     } else {
-                        GUIWindowModOptions.displayErrorMessage("Assemply is null on load of '" + pluginInfo.fileName + "'");
-                        AManager<GUIManager>.getInstance().AddTextLine("Assemply is null on load of '" + pluginInfo.fileName + "'");
+                        GuiWindowModOptions.DisplayErrorMessage("Assemply is null on load of '" + pluginInfo.FileName + "'");
+                        AManager<GUIManager>.getInstance().AddTextLine("Assemply is null on load of '" + pluginInfo.FileName + "'");
                     }
                 } catch (Exception ex) {
-                    GUIWindowModOptions.displayErrorMessage("Could not load assembly: '" + pluginInfo.fileName + "'");
-                    AManager<GUIManager>.getInstance().AddTextLine("Could not load assembly: '" + pluginInfo.fileName + "'");
+                    GuiWindowModOptions.DisplayErrorMessage("Could not load assembly: '" + pluginInfo.FileName + "'");
+                    AManager<GUIManager>.getInstance().AddTextLine("Could not load assembly: '" + pluginInfo.FileName + "'");
                     AManager<GUIManager>.getInstance().AddTextLine(" " + ex.Message);
-                    pluginInfo.shouldLoadPlugin = false;
-                    pluginInfo.isLoaded = false;
+                    pluginInfo.ShouldLoadPlugin = false;
+                    pluginInfo.IsLoaded = false;
                 }
 
-                if (pluginInfo.plugin != null) { //make sure we created the class
+                if (pluginInfo.Plugin != null) { //make sure we created the class
                     try {
-                        pluginInfo.plugin.OnLoad(); //load hte plugin
+                        pluginInfo.Plugin.OnLoad(); //load hte plugin
                     } catch (Exception ex) {
-                        GUIWindowModOptions.displayErrorMessage("Assembly " + pluginInfo.assembly.GetName().Name + " crashed in OnLoad");
-                        AManager<GUIManager>.getInstance().AddTextLine("Assembly " + pluginInfo.assembly.GetName().Name + " crashed in OnLoad with exception: " + ex.Message);
-                        pluginInfo.shouldLoadPlugin = false;
-                        pluginInfo.isLoaded = false;
+                        GuiWindowModOptions.DisplayErrorMessage("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnLoad");
+                        AManager<GUIManager>.getInstance().AddTextLine("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnLoad with exception: " + ex.Message);
+                        pluginInfo.ShouldLoadPlugin = false;
+                        pluginInfo.IsLoaded = false;
                     }
 
                     try {
-                        pluginInfo.plugin.OnEnable(); //enable the plugin
+                        pluginInfo.Plugin.OnEnable(); //enable the plugin
                     } catch (Exception ex) {
-                        GUIWindowModOptions.displayErrorMessage("Assembly " + pluginInfo.assembly.GetName().Name + " crashed in OnEnable");
-                        AManager<GUIManager>.getInstance().AddTextLine("Assembly " + pluginInfo.assembly.GetName().Name + " crashed in OnEnable with exception: " + ex.Message);
-                        pluginInfo.shouldLoadPlugin = false;
-                        pluginInfo.isLoaded = false;
+                        GuiWindowModOptions.DisplayErrorMessage("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnEnable");
+                        AManager<GUIManager>.getInstance().AddTextLine("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnEnable with exception: " + ex.Message);
+                        pluginInfo.ShouldLoadPlugin = false;
+                        pluginInfo.IsLoaded = false;
                     }
-                    pluginInfo.isLoaded = true;
+                    pluginInfo.IsLoaded = true;
                 } else {
-                    GUIWindowModOptions.displayErrorMessage("Plugin is null");
+                    GuiWindowModOptions.DisplayErrorMessage("Plugin is null");
                     AManager<GUIManager>.getInstance().AddTextLine("Plugin is null");
-                    pluginInfo.shouldLoadPlugin = false;
-                    pluginInfo.isLoaded = false;
+                    pluginInfo.ShouldLoadPlugin = false;
+                    pluginInfo.IsLoaded = false;
                 }
             } else {
-                GUIWindowModOptions.displayErrorMessage("File name does not exist: '" + pluginInfo.fileName + "'");
-                AManager<GUIManager>.getInstance().AddTextLine("File name does not exist: '" + pluginInfo.fileName + "'");
-                pluginInfo.shouldLoadPlugin = false;
-                pluginInfo.isLoaded = false;
+                GuiWindowModOptions.DisplayErrorMessage("File name does not exist: '" + pluginInfo.FileName + "'");
+                AManager<GUIManager>.getInstance().AddTextLine("File name does not exist: '" + pluginInfo.FileName + "'");
+                pluginInfo.ShouldLoadPlugin = false;
+                pluginInfo.IsLoaded = false;
             }
         }
     }

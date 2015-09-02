@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
-using Timber_and_Stone.API;
-using Timber_and_Stone.API.Event;
-using Timber_and_Stone.Event;
-using EventHandler = Timber_and_Stone.API.Event.EventHandler;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Reflection;
 using System.Timers;
 
 namespace Plugin.Bobisback.CombinedMods {
@@ -18,86 +11,86 @@ namespace Plugin.Bobisback.CombinedMods {
     /// This class handles all the logic and display of the options menu, this includes
     /// loading mods, truning mods on and off and unloading mods.
     /// </summary>
-    class GUIWindowModOptions : MonoBehaviour {
+    class GuiWindowModOptions : MonoBehaviour {
 
         //all vars needed for displaying the windows
-        private static float buttonHeight = 32;
-        private static float leftRightMargin = 15;
-        private static float topBottomMargin = 7.5f;
-        private static float inbetweenMargin = 2.5f;
+        private static readonly float ButtonHeight = 32;
+        private static readonly float LeftRightMargin = 15;
+        private static readonly float TopBottomMargin = 7.5f;
+        private static readonly float InbetweenMargin = 2.5f;
         private Rect windowRect = new Rect(180, 300, 240, 148);
-        private static int windowId = 502;
+        private static readonly int WindowId = 502;
 
-        private GUIManager guiMgr = GUIManager.getInstance();
-        private String guiName = "Active Mod GUI's";
+        private readonly GUIManager guiMgr = GUIManager.getInstance();
+        private readonly String guiName = "Active Mod GUI's";
 
         private bool displayGetDllName = false;
         private string tempName = "plugin2.dll";
 
         //vars for displaying messages error and regular.
-        private static Timer updateTimer = new Timer(5000);
-        private static bool showErrorDialog = false;
-        private static string errorMessageTitle = "An Error has Occurred";
-        private static string errorMessage = "";
+        private static readonly Timer UpdateTimer = new Timer(5000);
+        private static bool _showErrorDialog = false;
+        private static string _errorMessageTitle = "An Error has Occurred";
+        private static string _errorMessage = "";
 
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
         void Start() {
-            updateTimer.Elapsed += updateDisplay;
+            UpdateTimer.Elapsed += UpdateDisplay;
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
         //This is also were any hotkeys are intercepted.
         void Update() {
-            if (Input.GetKeyDown(SettingsManager.hotKeys["toggleOptionsMenuHotKey"])) {
-                if (SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu] == false) {
-                    SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu] = true;
+            if (Input.GetKeyDown(SettingsManager.HotKeys["toggleOptionsMenuHotKey"])) {
+                if (SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu] == false) {
+                    SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu] = true;
                     AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().DeSelect();
                     AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
                 } else {
-                    SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu] = false;
+                    SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu] = false;
                 }
             }
         }
 
         //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
         //No model data should built/manipulated.
-        void OnGUI() {
-            if (SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu]) {
-                windowRect = GUI.Window(windowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
+        void OnGui() {
+            if (SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu]) {
+                windowRect = GUI.Window(WindowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
             }
 
-            if (showErrorDialog) {
-                displayErrorDialog();
-                updateTimer.Start();
+            if (_showErrorDialog) {
+                DisplayErrorDialog();
+                UpdateTimer.Start();
             }
 
             if (displayGetDllName) {
-                getDllName();
+                GetDllName();
             }
         }
 
-        public static void displayErrorMessage(string error) {
-            displayMessage("An Error has Occurred", error);
+        public static void DisplayErrorMessage(string error) {
+            DisplayMessage("An Error has Occurred", error);
         }
 
-        public static void displayMessage(string title, string error) {
-            errorMessageTitle = title;
-            errorMessage = error;
-            showErrorDialog = true;
+        public static void DisplayMessage(string title, string error) {
+            _errorMessageTitle = title;
+            _errorMessage = error;
+            _showErrorDialog = true;
         }
 
-        private void updateDisplay(object sender, ElapsedEventArgs e) {
-            showErrorDialog = false;
-            updateTimer.Stop();
+        private void UpdateDisplay(object sender, ElapsedEventArgs e) {
+            _showErrorDialog = false;
+            UpdateTimer.Stop();
         }
 
-        private void displayErrorDialog() {
+        private void DisplayErrorDialog() {
             Rect displayErrorRect = new Rect(Screen.width / 2 - 160, Screen.height - 130, 320, 120);
-            guiMgr.DrawWindow(displayErrorRect, errorMessageTitle, false);
+            guiMgr.DrawWindow(displayErrorRect, _errorMessageTitle, false);
             displayErrorRect.y += 50;
             displayErrorRect.height += 50;
-            guiMgr.DrawTextCenteredWhite(displayErrorRect, errorMessage);
+            guiMgr.DrawTextCenteredWhite(displayErrorRect, _errorMessage);
         }
 
         private void BuildOptionsMenu(int id) {
@@ -106,66 +99,66 @@ namespace Plugin.Bobisback.CombinedMods {
             guiMgr.DrawWindow(backGroundWindow, guiName, false);
 
             if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, this.guiMgr.closeWindowButtonStyle)) {
-                SettingsManager.boolSettings[(int)Preferences.toggleOptionsMenu] = false;
+                SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu] = false;
                 return;
             }
 
-            float buttonAboveHeight = topBottomMargin;
+            float buttonAboveHeight = TopBottomMargin;
 
-            Rect buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight, windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Idle Settlers Mod", ref SettingsManager.boolSettings[(int)Preferences.toggleIdleSettlers]);
+            Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Idle Settlers Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers]);
 
-            buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Control Groups", ref SettingsManager.boolSettings[(int)Preferences.enableControlGroups]);
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Control Groups", ref SettingsManager.BoolSettings[(int)Preferences.EnableControlGroups]);
 
-            buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Game Speed Mod", ref SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed]);
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Game Speed Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleTripleSpeed]);
 
-            buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Cheat Menu Mod", ref SettingsManager.boolSettings[(int)Preferences.toggleCheatMenu]);
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Cheat Menu Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu]);
 
-            buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawTextCenteredBlack(buttonRect, "3rd Party mods");
 
-            buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2), buttonHeight);
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Add 3rd Party dll")) {
                 displayGetDllName = true;
             }
 
-            for (int i = 0; i < SettingsManager.pluginList.Count; i++) {
-                if (!SettingsManager.pluginList[i].removeFromListAtClose) {
-                    buttonRect = new Rect(leftRightMargin, buttonAboveHeight += buttonHeight + inbetweenMargin, windowRect.width - (leftRightMargin * 2) - 20, buttonHeight);
-                    guiMgr.DrawCheckBox(buttonRect, SettingsManager.pluginList[i].fileName, ref SettingsManager.pluginList[i].shouldLoadPlugin);
+            for (int i = 0; i < SettingsManager.PluginList.Count; i++) {
+                if (!SettingsManager.PluginList[i].RemoveFromListAtClose) {
+                    buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2) - 20, ButtonHeight);
+                    guiMgr.DrawCheckBox(buttonRect, SettingsManager.PluginList[i].FileName, ref SettingsManager.PluginList[i].ShouldLoadPlugin);
 
-                    if (SettingsManager.pluginList[i].shouldLoadPlugin) {
-                        if (SettingsManager.pluginList[i].displayToggle) {
-                            displayMessage("Plugin Loaded", "Plugin '" + SettingsManager.pluginList[i].fileName + "' Loaded.");
+                    if (SettingsManager.PluginList[i].ShouldLoadPlugin) {
+                        if (SettingsManager.PluginList[i].DisplayToggle) {
+                            DisplayMessage("Plugin Loaded", "Plugin '" + SettingsManager.PluginList[i].FileName + "' Loaded.");
                         }
-                        SettingsManager.pluginList[i].displayToggle = false;
-                        BobisbackPluginManager.loadPlugin(SettingsManager.pluginList[i]);
+                        SettingsManager.PluginList[i].DisplayToggle = false;
+                        BobisbackPluginManager.LoadPlugin(SettingsManager.PluginList[i]);
                     } else {
-                        if (!SettingsManager.pluginList[i].displayToggle) {
-                            displayMessage("Plugin Unloaded", "Plugin '" + SettingsManager.pluginList[i].fileName + "' unloaded.\nRestart Required.");
+                        if (!SettingsManager.PluginList[i].DisplayToggle) {
+                            DisplayMessage("Plugin Unloaded", "Plugin '" + SettingsManager.PluginList[i].FileName + "' unloaded.\nRestart Required.");
                         }
-                        SettingsManager.pluginList[i].displayToggle = true;
+                        SettingsManager.PluginList[i].DisplayToggle = true;
                     }
 
                     buttonRect.x += buttonRect.width;
                     buttonRect.height = 20f;
                     buttonRect.width = 20f;
                     if (GUI.Button(buttonRect, string.Empty, this.guiMgr.closeWindowButtonStyle)) {
-                        displayMessage("Remove Plugin", "The plugin named '" + SettingsManager.pluginList[i].fileName + "' was unloaded and removed. Restart is Required.");
-                        SettingsManager.pluginList[i].removeFromListAtClose = true;
+                        DisplayMessage("Remove Plugin", "The plugin named '" + SettingsManager.PluginList[i].FileName + "' was unloaded and removed. Restart is Required.");
+                        SettingsManager.PluginList[i].RemoveFromListAtClose = true;
                     }
                 }
             }
 
-            windowRect.height = buttonAboveHeight + buttonHeight + inbetweenMargin + topBottomMargin;
+            windowRect.height = buttonAboveHeight + ButtonHeight + InbetweenMargin + TopBottomMargin;
 
             GUI.DragWindow();
         }
 
-        private void getDllName() {
+        private void GetDllName() {
             Rect location = new Rect((float)(Screen.width - 380), 300f, 320f, 120f);
             this.guiMgr.DrawWindow(location, "Add dll From Another Mod", false);
             if (location.Contains(Event.current.mousePosition)) {
@@ -178,20 +171,20 @@ namespace Plugin.Bobisback.CombinedMods {
                     FileInfo info = new FileInfo("./saves/" + tempName);
                     if (info != null && info.Exists == true) {//{ ... };
                     //if (File.Exists("saves\\" + tempName)) {
-                        int index = SettingsManager.pluginList.FindIndex(x => x.fileName == tempName);
+                        int index = SettingsManager.PluginList.FindIndex(x => x.FileName == tempName);
                         if (index == -1) { //plugin is not in list make a new plugin
                             PluginInfo newPlugin = new PluginInfo(tempName);
-                            SettingsManager.pluginList.Add(newPlugin);
-                            displayMessage("Plugin Added", "Activation Needed\n(Check the box next to it)");
+                            SettingsManager.PluginList.Add(newPlugin);
+                            DisplayMessage("Plugin Added", "Activation Needed\n(Check the box next to it)");
                         } else {
-                            SettingsManager.pluginList[index].removeFromListAtClose = false;
-                            SettingsManager.pluginList[index].shouldLoadPlugin = true;
+                            SettingsManager.PluginList[index].RemoveFromListAtClose = false;
+                            SettingsManager.PluginList[index].ShouldLoadPlugin = true;
                         }
                     } else {
-                        displayErrorMessage("File does not exist fileName: " + "saves\\" + tempName);
+                        DisplayErrorMessage("File does not exist fileName: " + "saves\\" + tempName);
                     }
                 } else {
-                    displayErrorMessage("Invalid file name. Make sure there are no spaces");
+                    DisplayErrorMessage("Invalid file name. Make sure there are no spaces");
                 }
                 displayGetDllName = false;
             }

@@ -1,48 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using Timber_and_Stone.API;
-using Timber_and_Stone.API.Event;
-using Timber_and_Stone.Event;
-using EventHandler = Timber_and_Stone.API.Event.EventHandler;
+﻿using UnityEngine;
 
 namespace Plugin.Bobisback.CombinedMods {
 
     /// <summary>
     /// This class handles all game logic and display of the Increased game speed mod.
     /// </summary>
-    public class GUIWindowTripleSpeed : MonoBehaviour {
+    public class GuiWindowTripleSpeed : MonoBehaviour {
       
-        private GUIManager guiMgr = GUIManager.getInstance();
+        private readonly GUIManager guiMgr = GUIManager.getInstance();
 
         //This is called alot less then ongui and can have some model data manipulation in it.
         //This is also were any hotkeys are intercepted.
         void Update() {
-            if (Input.GetKeyDown(SettingsManager.hotKeys["toggleTripleSpeedHotKey"])) {
-                if (SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed] == false) {
-                    SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed] = true;
+            if (Input.GetKeyDown(SettingsManager.HotKeys["toggleTripleSpeedHotKey"])) {
+                if (SettingsManager.BoolSettings[(int)Preferences.ToggleTripleSpeed] == false) {
+                    SettingsManager.BoolSettings[(int)Preferences.ToggleTripleSpeed] = true;
                     AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().DeSelect();
                     AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
                 } else {
-                    SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed] = false;
+                    SettingsManager.BoolSettings[(int)Preferences.ToggleTripleSpeed] = false;
                 }
             }
         }
 
         //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
         //No model data should built/manipulated.
-        void OnGUI() {
+        void OnGui() {
             if (guiMgr.inGame && !guiMgr.gameOver) {
-                if (SettingsManager.boolSettings[(int)Preferences.toggleTripleSpeed]) {
-                    GameSpeedGUI();
+                if (SettingsManager.BoolSettings[(int)Preferences.ToggleTripleSpeed]) {
+                    GameSpeedGui();
                 }
             }
         }
 
         //This function just displays the Gmae Speed GUI at the top right of the screen.
-        private void GameSpeedGUI() {
+        private void GameSpeedGui() {
             int num = Screen.width - 120;
             int num2 = 88;
             if (Screen.width > 1520) {
