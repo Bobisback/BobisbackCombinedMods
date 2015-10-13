@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.Timers;
 using Timber_and_Stone;
+using Timber_and_Stone.Invasion;
+using Timber_and_Stone.Utility;
+using Random = System.Random;
 
 namespace Plugin.Bobisback.CombinedMods
 {
@@ -13,17 +17,33 @@ namespace Plugin.Bobisback.CombinedMods
         private static readonly float LeftRightMargin = 15;
         private static readonly float TopBottomMargin = 7.5f;
         private static readonly float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(370, 200, 260, 237);
+        private Rect windowRect = new Rect(370, 200, 300, 237);
         private static readonly int WindowId = 503;
+        private static readonly int InvasionWindowId = 504;
+        private static readonly int CustomWindowId = 505;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
         private readonly String guiName = "Cheat Menu";
+        private readonly String invasionGUIName = "Standard Invasion Menu";
+        private readonly String customInvasionGUIName = "Custom Invasion Menu";
 
         private static readonly Timer UpdateTimer = new Timer(500);
         private int[] storageIndexCounts;
         private bool add999Resources;
         private bool resetResouces;
         private bool unlimitedResources;
+
+        private bool standardInvasionMenu;
+        private float wealth;
+        private int weightedWealth;
+        private bool customInvasionMenu;
+        private bool undead;
+        private bool goblin;
+        private bool spider;
+        private bool wolf;
+        private string shownInvasionPoints;
+        private int invasionPoints;
+        private bool necromancer;
 
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
@@ -36,6 +56,9 @@ namespace Plugin.Bobisback.CombinedMods
             foreach (Resource resource in ResourceManager.getInstance().resources.Where(resource => resource != null)) {
                 storageIndexCounts[resource.storageIndex]++;
             }
+
+            shownInvasionPoints = "0";
+            invasionPoints = 0;
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
@@ -60,6 +83,12 @@ namespace Plugin.Bobisback.CombinedMods
             if (guiMgr.inGame && !guiMgr.gameOver) {
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu]) {
                     windowRect = GUI.Window(WindowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
+                }
+                if (standardInvasionMenu) {
+                    windowRect = GUI.Window(InvasionWindowId, windowRect, BuildStandardInvasionMenu, string.Empty, guiMgr.windowBoxStyle);
+                }
+                if (customInvasionMenu) {
+                    windowRect = GUI.Window(CustomWindowId, windowRect, BuildCustomInvasionMenu, string.Empty, guiMgr.windowBoxStyle);
                 }
             }
         }
@@ -92,29 +121,15 @@ namespace Plugin.Bobisback.CombinedMods
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Spawn Enemy")) {
+            if (guiMgr.DrawButton(buttonRect, "Standard Invasion Menu")) {
+                //GUIWindowModOptions.DisplayMessage("Disabled", "Feature Disabled For right now. Full invasion menu in the works. Maybe....");
+                standardInvasionMenu = true;
+            }
 
-                GUIWindowModOptions.DisplayMessage("Disabled", "Feature Disabled For right now. Full invasion menu in the works. Maybe....");
-                //int ranNum = UnityEngine.Random.Range(1, 6);
-                //string enemyToSpawn = "";
-                //switch (ranNum) {
-                //    case 1: enemyToSpawn = "goblin";
-                //        break;
-                //    case 2: enemyToSpawn = "mountedGoblin";
-                //        break;
-                //    case 3: enemyToSpawn = "skeleton";
-                //        break;
-                //    case 4: enemyToSpawn = "wolf";
-                //        break;
-                //    case 5: enemyToSpawn = "spider";
-                //        break;
-                //    case 6: enemyToSpawn = "necromancer";
-                //        break;
-                //    case 7: enemyToSpawn = "spiderLord";
-                //        break;
-                //}
-
-                //TODO UnitManager.getInstance().AddEnemy(enemyToSpawn, getRandomPosition(), false, -1);
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Custom Invasion Menu")) {
+                //GUIWindowModOptions.DisplayMessage("Disabled", "Feature Disabled For right now. Full invasion menu in the works. Maybe....");
+                customInvasionMenu = true;
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
@@ -142,10 +157,24 @@ namespace Plugin.Bobisback.CombinedMods
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Clear Enemy Corpses"))
+            {
+                IFaction playerFaction = WorldManager.getInstance().PlayerFaction;
+                foreach (ALivingEntity unit in (ALivingEntity[])FindObjectsOfType(typeof(ALivingEntity))) {
+                    if (playerFaction.getAlignmentToward(unit.faction) == Alignment.Enemy && !unit.isAlive()) {
+                        unit.Destroy();
+                    }
+                }
+            }
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "No Hunger", ref SettingsManager.BoolSettings[(int)Preferences.Hunger]);
 
-            //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            //guiMgr.DrawCheckBox(buttonRect, "Fatigue", ref SettingsManager.BoolSettings[(int)Preferences.Fatigue]);
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "No Invasions", ref SettingsManager.BoolSettings[(int)Preferences.NoInvasions]);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Show Invasion Info", ref SettingsManager.BoolSettings[(int)Preferences.InvasionsInfo]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Unlimited Resources", ref unlimitedResources);
@@ -153,9 +182,176 @@ namespace Plugin.Bobisback.CombinedMods
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Invincible", ref SettingsManager.BoolSettings[(int)Preferences.Invincible]);
 
+            //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            //guiMgr.DrawCheckBox(buttonRect, "Disable Line Of Sight", ref SettingsManager.BoolSettings[(int)Preferences.DisableLOS]);
+
             windowRect.height = buttonAboveHeight + ButtonHeight + InbetweenMargin + TopBottomMargin;
 
             GUI.DragWindow();
+        }
+
+        private void BuildStandardInvasionMenu(int id)
+        {
+            Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
+            guiMgr.DrawWindow(backGroundWindow, invasionGUIName, false);
+
+            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, guiMgr.closeWindowButtonStyle)) {
+                standardInvasionMenu = false;
+                return;
+            }
+
+            float buttonAboveHeight = TopBottomMargin;
+
+            Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawTextLeftBlack(buttonRect, "Wealth: " + wealth);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawTextLeftBlack(buttonRect, "Weighted Wealth: " + weightedWealth);
+            
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Easy Invasion (" + (weightedWealth / 2) + ")")) {
+                WorldManager.getInstance().SpawnInvasion(weightedWealth / 2);
+            }
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Normal Invasion (" + weightedWealth + ")")) {
+                WorldManager.getInstance().SpawnInvasion(weightedWealth);
+            }
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Hard Invasion (" + (weightedWealth * 2) + ")")) {
+                WorldManager.getInstance().SpawnInvasion(weightedWealth * 2);
+            }
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Insane Invasion (" + (weightedWealth * 4) + ")")) {
+                WorldManager.getInstance().SpawnInvasion(weightedWealth * 4);
+            }
+
+            windowRect.height = buttonAboveHeight + ButtonHeight + InbetweenMargin + TopBottomMargin;
+
+            GUI.DragWindow();
+        }
+        private void BuildCustomInvasionMenu(int id)
+        {
+            Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
+            guiMgr.DrawWindow(backGroundWindow, customInvasionGUIName, false);
+
+            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, guiMgr.closeWindowButtonStyle)) {
+                customInvasionMenu = false;
+                return;
+            }
+
+            float buttonAboveHeight = TopBottomMargin;
+
+            Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawTextLeftBlack(buttonRect, "Wealth: " + wealth);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawTextLeftBlack(buttonRect, "Weighted Wealth: " + weightedWealth);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, " Necromancer Invasion", ref necromancer);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Undead Invasion", ref undead);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Golbin Invasion", ref goblin);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Spider Invasion", ref spider);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Wolf Invasion", ref wolf);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawTextLeftWhite(buttonRect, "Invasion Points: ");
+            buttonRect.x += 150;
+            buttonRect.width = 20;
+            buttonRect.height = 20;
+            if (GUI.Button(buttonRect, string.Empty, guiMgr.minusButtonStyle))
+            {
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
+                    invasionPoints -= 10;
+                } 
+                else
+                {
+                    invasionPoints--;
+                }
+            }
+            buttonRect.x += 20;
+            buttonRect.width = 84;
+            buttonRect.height = 24;
+            shownInvasionPoints = "" + invasionPoints;
+            shownInvasionPoints = guiMgr.DrawTextFieldCenteredWhite("invasionPoints", buttonRect, shownInvasionPoints, 6);
+            int.TryParse(shownInvasionPoints, out invasionPoints);
+            buttonRect.x += 84;
+            buttonRect.width = 20;
+            buttonRect.height = 20;
+            if (GUI.Button(buttonRect, string.Empty, guiMgr.plusButtonStyle))
+            {
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+                    invasionPoints += 10;
+                } else {
+                    invasionPoints++;
+                }
+            }
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Spawn Random Invasion"))
+            {
+                SpawnInvasion();
+            }
+
+            windowRect.height = buttonAboveHeight + ButtonHeight + InbetweenMargin + TopBottomMargin;
+
+            GUI.DragWindow();
+        }
+
+        private void SpawnInvasion()
+        {
+            List<IInvasionGenerator> generators = new List<IInvasionGenerator>();
+
+            if (wolf)
+            {
+                generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is WolfInvasionGenerator));
+            }
+            if (spider)
+            {
+                generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is SpiderInvasionGenerator));
+            }
+            if (necromancer)
+            {
+                generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is NecromancerInvasionGenerator));
+            }
+            if (undead)
+            {
+                generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is SkeletonInvasionGenerator));
+            }
+            if (goblin)
+            {
+                generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is GoblinInvasionGenerator));
+            }
+
+            if (generators.Count == 0)
+            {
+                GUIWindowModOptions.DisplayMessage("No Invasion Started", "You need at least one invasion type selected.");
+                return;
+            }
+            
+            var randomNumber = new Random().Next(generators.Count);
+            WorldManager.getInstance().SpawnInvasion(generators[randomNumber].CreateInvasion(invasionPoints));
+        }
+
+        private int CalculateWeightedWealth()
+        {
+            float num = -650f;
+            num += AManager<ResourceManager>.getInstance().getWealth();
+            num += 100f * AManager<WorldManager>.getInstance().PlayerFaction.LiveUnitCount();
+            num += 50f * AManager<TimeManager>.getInstance().day;
+            return Mathf.FloorToInt(num);
         }
 
         private Vector3 GetRandomPosition()
@@ -187,15 +383,18 @@ namespace Plugin.Bobisback.CombinedMods
 
         private void UpdateGameVariables(object sender, ElapsedEventArgs e)
         {
-            if (!SettingsManager.BoolSettings[(int) Preferences.ToggleCheatMenu]) return;
+            wealth = AManager<ResourceManager>.getInstance().getWealth();
+            weightedWealth = CalculateWeightedWealth();
+
+            if (SettingsManager.BoolSettings[(int)Preferences.DisableLOS])
+            {
+                //TODO
+            }
 
             foreach (APlayableEntity settler in WorldManager.getInstance().PlayerFaction.units.OfType<APlayableEntity>().Where(x => x.isAlive())) {
                 if (!SettingsManager.BoolSettings[(int)Preferences.Hunger]) {
                     settler.hunger = 0;
                 }
-                //if (!SettingsManager.BoolSettings[(int)Preferences.Fatigue]) {
-                //    settler.fatigue = 1;
-                //}
                 if (SettingsManager.BoolSettings[(int)Preferences.Invincible]) {
                     settler.maxHP = 200f;
                     settler.hitpoints = settler.maxHP;
@@ -229,45 +428,6 @@ namespace Plugin.Bobisback.CombinedMods
                     storage.setResource(resource, qty);
                 }
             }
-            //else
-            //{
-            //    resetResouces = true;
-            //}
-
-            //if (resetResouces)
-            //{
-            //    resetResouces = false;
-
-            //    IStorageController storage = WorldManager.getInstance().PlayerFaction.storage as IStorageController;
-            //    ResourceManager resourceManager = ResourceManager.getInstance();
-
-            //    if (storage == null) {
-            //        GUIManager.getInstance().AddTextLine("Storage failed");
-            //        return;
-            //    }
-
-            //    storage.recalculateStorageUsed();
-
-            //    foreach (Resource resource in resourceManager.resources) {
-
-            //        if (resource == null) {
-            //            continue;
-            //        }
-
-            //        var storageCap = storage.getStorageCap(resource.storageIndex);
-            //        var totalInStorageIndex = storageIndexCounts[resource.storageIndex];
-
-            //        if (totalInStorageIndex == 0 || resource.mass == 0) {
-            //            continue;
-            //        }
-
-            //        var totalMassAvailablePerStorageIndex = (storageCap / totalInStorageIndex);
-
-            //        var qty = (int)(totalMassAvailablePerStorageIndex / resource.mass);
-
-            //        storage.setResource(resource, qty);
-            //    }
-            //}
 
             if (add999Resources) {
                 add999Resources = false;
