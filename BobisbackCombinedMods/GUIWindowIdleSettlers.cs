@@ -144,13 +144,13 @@ namespace Plugin.Bobisback.CombinedMods {
         {
             if (!guiMgr.inGame || guiMgr.gameOver) return;// make sure we are in the game
 
-            if (!SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers]) return;//make sure hte mod is enabled
+            //if (!SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers]) return;//make sure hte mod is enabled
             
             foreach (APlayableEntity settler in WorldManager.getInstance().PlayerFaction.units.OfType<APlayableEntity>().Where(x => x.isAlive())) //get all settlers
             {
                 if (settler.getWhatImDoing() == null) continue; //make sure there is something to get
                 //see if the settler is waiting or doing nothing, then exclude any prefessions we need to exclude
-                if ((settler.getWhatImDoing().Contains("Waiting") || settler.getWhatImDoing().Equals("")) && PassProfessionCheck(settler)) {
+                if ((settler.getWhatImDoing().Contains("Waiting") || settler.getWhatImDoing().Contains("Wandering") || settler.getWhatImDoing().Equals("")) && PassProfessionCheck(settler)) {
                     if (!idleSettlers.Contains(settler)) { //if it is not in the list put it in there
                         idleSettlers.Add(settler);
                     } //otherwise leave it in there

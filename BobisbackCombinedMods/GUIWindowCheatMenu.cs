@@ -2,22 +2,28 @@
 using System.Linq;
 using UnityEngine;
 using System.Timers;
+using Timber_and_Stone;
 
-namespace Plugin.Bobisback.CombinedMods {
+namespace Plugin.Bobisback.CombinedMods
+{
 
-    public class GUIWindowCheatMenu : MonoBehaviour 
+    public class GUIWindowCheatMenu : MonoBehaviour
     {
         private static readonly float ButtonHeight = 32;
         private static readonly float LeftRightMargin = 15;
         private static readonly float TopBottomMargin = 7.5f;
         private static readonly float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(370, 200, 240, 237);
+        private Rect windowRect = new Rect(370, 200, 260, 237);
         private static readonly int WindowId = 503;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
         private readonly String guiName = "Cheat Menu";
 
         private static readonly Timer UpdateTimer = new Timer(500);
+        private int[] storageIndexCounts;
+        private bool add999Resources;
+        private bool resetResouces;
+        private bool unlimitedResources;
 
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
@@ -25,6 +31,11 @@ namespace Plugin.Bobisback.CombinedMods {
         {
             UpdateTimer.Elapsed += UpdateGameVariables;
             UpdateTimer.Start();
+
+            storageIndexCounts = new int[11];
+            foreach (Resource resource in ResourceManager.getInstance().resources.Where(resource => resource != null)) {
+                storageIndexCounts[resource.storageIndex]++;
+            }
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
@@ -44,7 +55,7 @@ namespace Plugin.Bobisback.CombinedMods {
 
         //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
         //No model data should built/manipulated.
-        public void OnGUI() 
+        public void OnGUI()
         {
             if (guiMgr.inGame && !guiMgr.gameOver) {
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu]) {
@@ -53,8 +64,8 @@ namespace Plugin.Bobisback.CombinedMods {
             }
         }
 
-        private void BuildOptionsMenu(int id) {
-
+        private void BuildOptionsMenu(int id)
+        {
             Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
             guiMgr.DrawWindow(backGroundWindow, guiName, false);
 
@@ -102,7 +113,7 @@ namespace Plugin.Bobisback.CombinedMods {
                 //    case 7: enemyToSpawn = "spiderLord";
                 //        break;
                 //}
-                
+
                 //TODO UnitManager.getInstance().AddEnemy(enemyToSpawn, getRandomPosition(), false, -1);
             }
 
@@ -119,22 +130,25 @@ namespace Plugin.Bobisback.CombinedMods {
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Max All Resources")) {
-                GUIWindowModOptions.DisplayMessage("Disabled", "Seems to be broken atm. Not sure why it is not working.");
-                //ResourceManager.getInstance().CheatResources();
-                //for (int i = 0; i < ResourceManager.getInstance().materials.Length; i++) {
-                //    if (ResourceManager.getInstance().materials[i] < 999) 
-                //    {
-                //        ResourceManager.getInstance().materials[i] = 999;
-                //    }
-                //}
+            if (guiMgr.DrawButton(buttonRect, "Add 999 Resources")) {
+                if (unlimitedResources) return;
+
+                IStorage storage = WorldManager.getInstance().PlayerFaction.storage;
+                ResourceManager resourceManager = ResourceManager.getInstance();
+
+                foreach (Resource resource in resourceManager.resources.Where(resource => resource != null)) {
+                    storage.addResource(resource, 999);
+                }
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Hunger", ref SettingsManager.BoolSettings[(int)Preferences.Hunger]);
+            guiMgr.DrawCheckBox(buttonRect, "No Hunger", ref SettingsManager.BoolSettings[(int)Preferences.Hunger]);
 
             //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             //guiMgr.DrawCheckBox(buttonRect, "Fatigue", ref SettingsManager.BoolSettings[(int)Preferences.Fatigue]);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Unlimited Resources", ref unlimitedResources);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Invincible", ref SettingsManager.BoolSettings[(int)Preferences.Invincible]);
@@ -144,7 +158,8 @@ namespace Plugin.Bobisback.CombinedMods {
             GUI.DragWindow();
         }
 
-        private Vector3 GetRandomPosition() {
+        private Vector3 GetRandomPosition()
+        {
             int num = UnityEngine.Random.Range(1, 5);
             float num2 = 0f;
             float num3 = 0f;
@@ -184,6 +199,84 @@ namespace Plugin.Bobisback.CombinedMods {
                 if (SettingsManager.BoolSettings[(int)Preferences.Invincible]) {
                     settler.maxHP = 200f;
                     settler.hitpoints = settler.maxHP;
+                } else {
+                    settler.maxHP = 100f;
+                }
+            }
+
+            if (unlimitedResources) {
+                IStorageController storage = WorldManager.getInstance().PlayerFaction.storage as IStorageController;
+
+                if (storage == null) {
+                    GUIManager.getInstance().AddTextLine("Storage failed");
+                    return;
+                }
+
+                ResourceManager resourceManager = ResourceManager.getInstance();
+
+                foreach (Resource resource in resourceManager.resources.Where(resource => resource != null)) {
+                    storage.setStorageCap(resource.storageIndex, 10000);
+                    var totalInStorageIndex = storageIndexCounts[resource.storageIndex];
+
+                    if (totalInStorageIndex == 0 || resource.mass == 0) {
+                        continue;
+                    }
+
+                    var totalMassAvailablePerStorageIndex = (7999 / totalInStorageIndex);
+
+                    var qty = (int)(totalMassAvailablePerStorageIndex / resource.mass);
+
+                    storage.setResource(resource, qty);
+                }
+            }
+            //else
+            //{
+            //    resetResouces = true;
+            //}
+
+            //if (resetResouces)
+            //{
+            //    resetResouces = false;
+
+            //    IStorageController storage = WorldManager.getInstance().PlayerFaction.storage as IStorageController;
+            //    ResourceManager resourceManager = ResourceManager.getInstance();
+
+            //    if (storage == null) {
+            //        GUIManager.getInstance().AddTextLine("Storage failed");
+            //        return;
+            //    }
+
+            //    storage.recalculateStorageUsed();
+
+            //    foreach (Resource resource in resourceManager.resources) {
+
+            //        if (resource == null) {
+            //            continue;
+            //        }
+
+            //        var storageCap = storage.getStorageCap(resource.storageIndex);
+            //        var totalInStorageIndex = storageIndexCounts[resource.storageIndex];
+
+            //        if (totalInStorageIndex == 0 || resource.mass == 0) {
+            //            continue;
+            //        }
+
+            //        var totalMassAvailablePerStorageIndex = (storageCap / totalInStorageIndex);
+
+            //        var qty = (int)(totalMassAvailablePerStorageIndex / resource.mass);
+
+            //        storage.setResource(resource, qty);
+            //    }
+            //}
+
+            if (add999Resources) {
+                add999Resources = false;
+
+                IStorage storage = WorldManager.getInstance().PlayerFaction.storage;
+                ResourceManager resourceManager = ResourceManager.getInstance();
+
+                foreach (Resource resource in resourceManager.resources) {
+                    storage.addResource(resource, 999);
                 }
             }
         }

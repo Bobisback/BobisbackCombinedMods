@@ -19,7 +19,7 @@ namespace Plugin.Bobisback.CombinedMods {
         //GUIWindowModOptions options
         ToggleOptionsMenu,
         //GUIWindowCheatMenu options
-        ToggleCheatMenu, Hunger, Fatigue, Invincible,
+        ToggleCheatMenu, Hunger, Fatigue, Invincible, 
         //Control group options
         EnableControlGroups,
         //Total number of options always needs to be last aka add more options above

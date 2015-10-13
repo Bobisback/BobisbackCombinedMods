@@ -9,7 +9,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This function is called when the mod loads at startup
         /// </summary>
         public override void OnLoad() {
-            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v1.5 Loaded");
+            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v1.5.1 Loaded");
             //add all of our GUI's to the game
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowTripleSpeed));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowIdleSettlers));
@@ -24,7 +24,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This function is also called on mod startup. It is called after OnLoad
         /// </summary>
         public override void OnEnable() {
-            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v1.5 Enabled");
+            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v1.5.1 Enabled");
             EventManager.getInstance().Register(this);
         }
 
