@@ -11,7 +11,7 @@ namespace Plugin.Bobisback.CombinedMods {
     /// This class handles all the logic and display of the options menu, this includes
     /// loading mods, truning mods on and off and unloading mods.
     /// </summary>
-    class GuiWindowModOptions : MonoBehaviour {
+    class GUIWindowModOptions : MonoBehaviour {
 
         //all vars needed for displaying the windows
         private static readonly float ButtonHeight = 32;
@@ -24,28 +24,29 @@ namespace Plugin.Bobisback.CombinedMods {
         private readonly GUIManager guiMgr = GUIManager.getInstance();
         private readonly String guiName = "Active Mod GUI's";
 
-        private bool displayGetDllName = false;
+        private bool displayGetDllName;
         private string tempName = "plugin2.dll";
 
         //vars for displaying messages error and regular.
         private static readonly Timer UpdateTimer = new Timer(5000);
-        private static bool _showErrorDialog = false;
+        private static bool _showErrorDialog;
         private static string _errorMessageTitle = "An Error has Occurred";
         private static string _errorMessage = "";
 
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
-        void Start() {
+        public void Start() {
             UpdateTimer.Elapsed += UpdateDisplay;
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
         //This is also were any hotkeys are intercepted.
-        void Update() {
+        public void Update()
+        {
             if (Input.GetKeyDown(SettingsManager.HotKeys["toggleOptionsMenuHotKey"])) {
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu] == false) {
                     SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu] = true;
-                    AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().DeSelect();
+                    WorldManager.getInstance().PlayerFaction.DeSelect();
                     AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
                 } else {
                     SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu] = false;
@@ -55,7 +56,8 @@ namespace Plugin.Bobisback.CombinedMods {
 
         //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
         //No model data should built/manipulated.
-        void OnGui() {
+        public void OnGUI()
+        {
             if (SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu]) {
                 windowRect = GUI.Window(WindowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
             }
@@ -98,7 +100,7 @@ namespace Plugin.Bobisback.CombinedMods {
             Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
             guiMgr.DrawWindow(backGroundWindow, guiName, false);
 
-            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, this.guiMgr.closeWindowButtonStyle)) {
+            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, guiMgr.closeWindowButtonStyle)) {
                 SettingsManager.BoolSettings[(int)Preferences.ToggleOptionsMenu] = false;
                 return;
             }
@@ -146,7 +148,7 @@ namespace Plugin.Bobisback.CombinedMods {
                     buttonRect.x += buttonRect.width;
                     buttonRect.height = 20f;
                     buttonRect.width = 20f;
-                    if (GUI.Button(buttonRect, string.Empty, this.guiMgr.closeWindowButtonStyle)) {
+                    if (GUI.Button(buttonRect, string.Empty, guiMgr.closeWindowButtonStyle)) {
                         DisplayMessage("Remove Plugin", "The plugin named '" + SettingsManager.PluginList[i].FileName + "' was unloaded and removed. Restart is Required.");
                         SettingsManager.PluginList[i].RemoveFromListAtClose = true;
                     }
@@ -159,17 +161,17 @@ namespace Plugin.Bobisback.CombinedMods {
         }
 
         private void GetDllName() {
-            Rect location = new Rect((float)(Screen.width - 380), 300f, 320f, 120f);
-            this.guiMgr.DrawWindow(location, "Add dll From Another Mod", false);
+            Rect location = new Rect(Screen.width - 380, 300f, 320f, 120f);
+            guiMgr.DrawWindow(location, "Add dll From Another Mod", false);
             if (location.Contains(Event.current.mousePosition)) {
-                this.guiMgr.mouseInGUI = true;
+                guiMgr.mouseInGUI = true;
             }
-            GUI.Box(new Rect(location.xMin + 20f, location.yMin + 42f, location.width - 40f, 24f), string.Empty, this.guiMgr.boxStyle);
-            tempName = this.guiMgr.DrawTextFieldCenteredWhite("dll Name", new Rect(location.xMin + 16f, location.yMin + 42f, location.width - 32f, 24f), tempName, 20);
+            GUI.Box(new Rect(location.xMin + 20f, location.yMin + 42f, location.width - 40f, 24f), string.Empty, guiMgr.boxStyle);
+            tempName = guiMgr.DrawTextFieldCenteredWhite("dll Name", new Rect(location.xMin + 16f, location.yMin + 42f, location.width - 32f, 24f), tempName, 20);
             if (guiMgr.DrawButton(new Rect(location.xMin + 24f, location.yMin + 80f, 100f, 28f), "Confirm")) {
                 if (IsValidFilename(tempName)) {
                     FileInfo info = new FileInfo("./saves/" + tempName);
-                    if (info != null && info.Exists == true) {//{ ... };
+                    if (info.Exists) {//{ ... };
                     //if (File.Exists("saves\\" + tempName)) {
                         int index = SettingsManager.PluginList.FindIndex(x => x.FileName == tempName);
                         if (index == -1) { //plugin is not in list make a new plugin
@@ -195,10 +197,10 @@ namespace Plugin.Bobisback.CombinedMods {
 
         private bool IsValidFilename(string testName) {
             Regex containsABadCharacter = new Regex("["
-                  + Regex.Escape(new string(System.IO.Path.GetInvalidPathChars())) + "]");
+                  + Regex.Escape(new string(Path.GetInvalidPathChars())) + "]");
             if (containsABadCharacter.IsMatch(testName) || testName.Contains(' ')) {
                 return false;
-            };
+            }
             return true;
         }
     }

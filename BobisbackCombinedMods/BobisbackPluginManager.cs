@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using Timber_and_Stone.API;
 
 namespace Plugin.Bobisback.CombinedMods {
@@ -14,17 +11,17 @@ namespace Plugin.Bobisback.CombinedMods {
     /// plugin needs to be unloaded or display a message.
     /// </summary>
     public class PluginInfo {
-        public string FileName = string.Empty;
-        public bool ShouldLoadPlugin = false;
+        public string FileName;
+        public bool ShouldLoadPlugin;
         public bool DisplayToggle = true;
-        public bool RemoveFromListAtClose = false;
-        public bool IsLoaded = false;
-        public AppDomain AppDomain = null;
-        public IPlugin Plugin = null;
-        public Assembly Assembly = null;
+        public bool RemoveFromListAtClose;
+        public bool IsLoaded;
+        public AppDomain AppDomain;
+        public IPlugin Plugin;
+        public Assembly Assembly;
 
         public PluginInfo(string fileName) {
-            this.FileName = fileName;
+            FileName = fileName;
             ShouldLoadPlugin = false;
             AppDomain = null;
             Plugin = null;
@@ -71,7 +68,7 @@ namespace Plugin.Bobisback.CombinedMods {
 
             pluginInfo.ShouldLoadPlugin = true;
             FileInfo info = new FileInfo("./saves/" + pluginInfo.FileName);
-            if (info != null && info.Exists == true) { //make sure the file is there
+            if (info.Exists) { //make sure the file is there
                 try {
                     //loading new domains do not work for some reason
                     //pluginInfo.appDomain = AppDomain.CreateDomain("Testdomain");
@@ -89,11 +86,11 @@ namespace Plugin.Bobisback.CombinedMods {
                             }
                         }
                     } else {
-                        GuiWindowModOptions.DisplayErrorMessage("Assemply is null on load of '" + pluginInfo.FileName + "'");
+                        GUIWindowModOptions.DisplayErrorMessage("Assemply is null on load of '" + pluginInfo.FileName + "'");
                         AManager<GUIManager>.getInstance().AddTextLine("Assemply is null on load of '" + pluginInfo.FileName + "'");
                     }
                 } catch (Exception ex) {
-                    GuiWindowModOptions.DisplayErrorMessage("Could not load assembly: '" + pluginInfo.FileName + "'");
+                    GUIWindowModOptions.DisplayErrorMessage("Could not load assembly: '" + pluginInfo.FileName + "'");
                     AManager<GUIManager>.getInstance().AddTextLine("Could not load assembly: '" + pluginInfo.FileName + "'");
                     AManager<GUIManager>.getInstance().AddTextLine(" " + ex.Message);
                     pluginInfo.ShouldLoadPlugin = false;
@@ -104,7 +101,7 @@ namespace Plugin.Bobisback.CombinedMods {
                     try {
                         pluginInfo.Plugin.OnLoad(); //load hte plugin
                     } catch (Exception ex) {
-                        GuiWindowModOptions.DisplayErrorMessage("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnLoad");
+                        GUIWindowModOptions.DisplayErrorMessage("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnLoad");
                         AManager<GUIManager>.getInstance().AddTextLine("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnLoad with exception: " + ex.Message);
                         pluginInfo.ShouldLoadPlugin = false;
                         pluginInfo.IsLoaded = false;
@@ -113,20 +110,20 @@ namespace Plugin.Bobisback.CombinedMods {
                     try {
                         pluginInfo.Plugin.OnEnable(); //enable the plugin
                     } catch (Exception ex) {
-                        GuiWindowModOptions.DisplayErrorMessage("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnEnable");
+                        GUIWindowModOptions.DisplayErrorMessage("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnEnable");
                         AManager<GUIManager>.getInstance().AddTextLine("Assembly " + pluginInfo.Assembly.GetName().Name + " crashed in OnEnable with exception: " + ex.Message);
                         pluginInfo.ShouldLoadPlugin = false;
                         pluginInfo.IsLoaded = false;
                     }
                     pluginInfo.IsLoaded = true;
                 } else {
-                    GuiWindowModOptions.DisplayErrorMessage("Plugin is null");
+                    GUIWindowModOptions.DisplayErrorMessage("Plugin is null");
                     AManager<GUIManager>.getInstance().AddTextLine("Plugin is null");
                     pluginInfo.ShouldLoadPlugin = false;
                     pluginInfo.IsLoaded = false;
                 }
             } else {
-                GuiWindowModOptions.DisplayErrorMessage("File name does not exist: '" + pluginInfo.FileName + "'");
+                GUIWindowModOptions.DisplayErrorMessage("File name does not exist: '" + pluginInfo.FileName + "'");
                 AManager<GUIManager>.getInstance().AddTextLine("File name does not exist: '" + pluginInfo.FileName + "'");
                 pluginInfo.ShouldLoadPlugin = false;
                 pluginInfo.IsLoaded = false;

@@ -1,60 +1,53 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using Timber_and_Stone;
-using Timber_and_Stone.API;
-using Timber_and_Stone.API.Event;
-using Timber_and_Stone.Event;
-using Timber_and_Stone.Tasks;
-using EventHandler = Timber_and_Stone.API.Event.EventHandler;
-using System.Reflection;
 using System.Timers;
-using System.IO;
 
 namespace Plugin.Bobisback.CombinedMods {
-    public class GuiWindowIdleSettlers : MonoBehaviour {
+    public class GUIWindowIdleSettlers : MonoBehaviour {
 
         //vars needed for window placement
-        private static readonly float ButtonHeight = 32;
-        private static readonly float LeftRightMargin = 15;
-        private static readonly float TopBottomMargin = 7.5f;
-        private static readonly float InbetweenMargin = 2.5f;
+        private const float ButtonHeight = 32;
+        private const float LeftRightMargin = 15;
+        private const float TopBottomMargin = 7.5f;
+        private const float InbetweenMargin = 2.5f;
         private Rect windowRect = new Rect(60, 140, 300, 126);
-        private static readonly int WindowId = 501;
+        private const int WindowId = 501;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
-        private readonly String guiName = "Idle Settlers";
+        private const string GUIName = "Idle Settlers";
         private List<APlayableEntity> idleSettlers = new List<APlayableEntity>();
 
         //we only wanna update The idle setters once ever second or so
         private static readonly Timer UpdateTimer = new Timer(500);
 
         private static int _currentIdleSettlerIndex = -1;
-        private static APlayableEntity _settlerToSelect = null;
-        private static bool _selectSettler = false;
+        private static APlayableEntity _settlerToSelect;
+        private static bool _selectSettler;
 
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
-        void Start() {
+        public void Start() {
             UpdateTimer.Elapsed += GetIdleSettlers;
             UpdateTimer.Start();
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
         //This is also were any hotkeys are intercepted.
-        void Update() {
+        public void Update() {
             if (_selectSettler && _settlerToSelect != null) { //if we are suppose to select a settler and there is a settler to select
-                MonoBehaviour selectedObject = UnitManager.getInstance().controllerObj.GetComponent<ControlPlayer>().selectedObject;
-                bool openSettlerWindow = false;
-                if (selectedObject != null && selectedObject.gameObject.tag == "ControllableUnit" && AManager<GUIManager>.getInstance().GetComponent<HumanSettlerWindow>().entity == selectedObject) {
-                    openSettlerWindow = true;
+                if (WorldManager.getInstance().PlayerFaction.firstPersonUnit != null) {
+                    return;
                 }
 
-                AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().MoveToPosition(_settlerToSelect.coordinate.world);
-                AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().SelectObject(_settlerToSelect.transform, openSettlerWindow);
+                MonoBehaviour selectedObject = WorldManager.getInstance().PlayerFaction.selectedObject;
+                bool openSettlerWindow = selectedObject != null &&
+                                         selectedObject.gameObject.tag == "ControllableUnit" &&
+                                         AManager<GUIManager>.getInstance().settlerWindow.isOpen((APlayableEntity)selectedObject);
+
+                WorldManager.getInstance().PlayerFaction.SelectObject(_settlerToSelect.transform, openSettlerWindow);
+                WorldManager.getInstance().PlayerFaction.MoveToPosition(_settlerToSelect.coordinate.world);
                 _selectSettler = false;
             }
 
@@ -69,7 +62,7 @@ namespace Plugin.Bobisback.CombinedMods {
             if (Input.GetKeyDown(SettingsManager.HotKeys["toggleIdleSettlersHotKey"])) {
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers] == false) {
                     SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers] = true;
-                    AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().DeSelect();
+                    WorldManager.getInstance().PlayerFaction.DeSelect();
                     AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
                 } else {
                     SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers] = false;
@@ -79,7 +72,7 @@ namespace Plugin.Bobisback.CombinedMods {
 
         //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
         //No model data should built/manipulated.
-        void OnGui() {
+        public void OnGUI() {
             if (guiMgr.inGame && !guiMgr.gameOver) {
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers]) {
                     windowRect = GUI.Window(WindowId, windowRect, BuildIdleSettlerMenu, string.Empty, guiMgr.windowBoxStyle);
@@ -96,12 +89,18 @@ namespace Plugin.Bobisback.CombinedMods {
                 return;
             }
 
-            ControlPlayer controlPlayer = AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>();
-            MonoBehaviour selectedObject = UnitManager.getInstance().controllerObj.GetComponent<ControlPlayer>().selectedObject;
-            bool openSettlerWindow = false;
-            if (selectedObject != null && selectedObject.gameObject.tag == "ControllableUnit" && AManager<GUIManager>.getInstance().GetComponent<HumanSettlerWindow>().entity == selectedObject) {
-                openSettlerWindow = true;
+            if (WorldManager.getInstance().PlayerFaction.firstPersonUnit != null) {
+                return;
             }
+
+            MonoBehaviour selectedObject = WorldManager.getInstance().PlayerFaction.selectedObject;
+            bool openSettlerWindow = selectedObject != null && 
+                                     selectedObject.gameObject.tag == "ControllableUnit" &&
+                                     AManager<GUIManager>.getInstance().settlerWindow.isOpen((APlayableEntity)selectedObject);
+            //bool openSettlerWindow = false;
+            //if (selectedObject != null && selectedObject.gameObject.tag == "ControllableUnit" && AManager<GUIManager>.getInstance().GetComponent<HumanSettlerWindow>().entity == selectedObject) {
+            //    openSettlerWindow = true;
+            //}
             if (!AManager<GUIManager>.getInstance().gameOver) {
                 if (next) {
                     _currentIdleSettlerIndex++; //go to next settler
@@ -129,8 +128,9 @@ namespace Plugin.Bobisback.CombinedMods {
             }
 
             //move to the settler and select him
-            AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().MoveToPosition(idleSettlers[_currentIdleSettlerIndex].coordinate.world);
-            AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().SelectObject(idleSettlers[_currentIdleSettlerIndex].transform, openSettlerWindow);
+
+            WorldManager.getInstance().PlayerFaction.SelectObject(idleSettlers[_currentIdleSettlerIndex].transform, openSettlerWindow);
+            WorldManager.getInstance().PlayerFaction.MoveToPosition(idleSettlers[_currentIdleSettlerIndex].coordinate.world);
         }
 
         /// <summary>
@@ -140,28 +140,28 @@ namespace Plugin.Bobisback.CombinedMods {
         /// </summary>
         /// <param name="sender">This is not used but needed for the timer</param>
         /// <param name="e">This is not used but needed for the timer</param>
-        private void GetIdleSettlers(object sender, ElapsedEventArgs e) {
-            if (guiMgr.inGame && !guiMgr.gameOver) { // make sure we are in the game
-                if (SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers]) { //make sure hte mod is enabled
-                    foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) { //get all settlers
-                        if (settler.getWhatImDoing() != null) { //make sure there is something to get
-                            //see if the settler is waiting or doing nothing, then exclude any prefessions we need to exclude
-                            if ((settler.getWhatImDoing().Contains("Waiting") || settler.getWhatImDoing().Equals("")) && PassProfessionCheck(settler)) {
-                                if (!idleSettlers.Contains(settler)) { //if it is not in the list put it in there
-                                    idleSettlers.Add(settler);
-                                } //otherwise leave it in there
-                            } else { // if it does not meet the above conditions we do not want it in the list
-                                idleSettlers.Remove(settler);
-                            }
-                            if (SettingsManager.BoolSettings[(int)Preferences.ShowNotifications]) {
-                                GUIManager.getInstance().AddTextLine("Idle Settlers: " + idleSettlers.Count);
-                            }
-                            //sort the list based on unit name
-                            idleSettlers = idleSettlers.OrderBy(o => o.unitName).ToList();
-                        }
-                    }
-                }
+        private void GetIdleSettlers(object sender, ElapsedEventArgs e)
+        {
+            if (!guiMgr.inGame || guiMgr.gameOver) return;// make sure we are in the game
 
+            if (!SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers]) return;//make sure hte mod is enabled
+            
+            foreach (APlayableEntity settler in WorldManager.getInstance().PlayerFaction.units.OfType<APlayableEntity>().Where(x => x.isAlive())) //get all settlers
+            {
+                if (settler.getWhatImDoing() == null) continue; //make sure there is something to get
+                //see if the settler is waiting or doing nothing, then exclude any prefessions we need to exclude
+                if ((settler.getWhatImDoing().Contains("Waiting") || settler.getWhatImDoing().Equals("")) && PassProfessionCheck(settler)) {
+                    if (!idleSettlers.Contains(settler)) { //if it is not in the list put it in there
+                        idleSettlers.Add(settler);
+                    } //otherwise leave it in there
+                } else { // if it does not meet the above conditions we do not want it in the list
+                    idleSettlers.Remove(settler);
+                }
+                if (SettingsManager.BoolSettings[(int)Preferences.ShowNotifications]) {
+                    GUIManager.getInstance().AddTextLine("Idle Settlers: " + idleSettlers.Count);
+                }
+                //sort the list based on unit name
+                idleSettlers = idleSettlers.OrderBy(o => o.unitName).ToList();
             }
         }
 
@@ -204,9 +204,9 @@ namespace Plugin.Bobisback.CombinedMods {
         void BuildIdleSettlerMenu(int windowId) {
 
             Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
-            guiMgr.DrawWindow(backGroundWindow, guiName, false);
+            guiMgr.DrawWindow(backGroundWindow, GUIName, false);
 
-            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, this.guiMgr.closeWindowButtonStyle)) {
+            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, guiMgr.closeWindowButtonStyle)) {
                 SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers] = false;
                 return;
             }

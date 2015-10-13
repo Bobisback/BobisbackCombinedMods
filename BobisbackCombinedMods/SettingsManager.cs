@@ -10,7 +10,8 @@ namespace Plugin.Bobisback.CombinedMods {
     /// This enum allows indexing into the bool array called boolSettings. 
     /// This enum is used to help keep track of all the settings in the mod.
     /// </summary>
-    public enum Preferences : int {
+    public enum Preferences
+    {
         //GUIWindowTripleSpeed options
         ToggleTripleSpeed,
         //GUIWindowIdleSettlers options
@@ -33,7 +34,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// <summary>
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
-        public static bool[] BoolSettings = new bool[(int)Preferences.TotalOptions] { 
+        public static bool[] BoolSettings = { 
             true, //init GUIWindowTripleSpeed options
             true, false, false, false, false, false, false, //init GUIWindowIdleSettlers options
             true, //init GUIWindowModOptions options
@@ -164,9 +165,8 @@ namespace Plugin.Bobisback.CombinedMods {
 
         //This function will extract a settler name out of the buffer string
         private static void ExtractSettlerControlGroup(string stringToSearchFor, string buffer, int controlGroupIndex) {
-            int start = 0, end = 0;
-            start = buffer.IndexOf(stringToSearchFor, StringComparison.Ordinal) + stringToSearchFor.Length;
-            end = buffer.IndexOf("</controlGroup>", start, StringComparison.Ordinal);
+            var start = buffer.IndexOf(stringToSearchFor, StringComparison.Ordinal) + stringToSearchFor.Length;
+            var end = buffer.IndexOf("</controlGroup>", start, StringComparison.Ordinal);
             var settlerName = buffer.Substring(start, end - start);
             settlerName = string.IsNullOrEmpty(settlerName) ? string.Empty : settlerName;
             ControlGroupSettlers[controlGroupIndex] = settlerName;
@@ -174,57 +174,59 @@ namespace Plugin.Bobisback.CombinedMods {
 
         //this function will extract a hot key out of the buffer
         private static void ExtractHotKey(KeyValuePair<string, KeyCode> hotKey, string buffer) {
-            int index = -1;
-            index = buffer.IndexOf(hotKey.Key, StringComparison.Ordinal);
-            if (index != -1) {
-                var temp = buffer.Substring(index);
-                string keyString = temp.Split()[1];
-                try {
-                    HotKeys[hotKey.Key] = (KeyCode)System.Enum.Parse(typeof(KeyCode), keyString); 
-                } catch (Exception e) {
-                    Console.WriteLine("Exception: " + e.Message);
-                    GUIManager.getInstance().AddTextLine("There was a error in loading the settings for hotkey name '" + hotKey.Key + "' reverting to default hotkey.");
-                }
+            var index = buffer.IndexOf(hotKey.Key, StringComparison.Ordinal);
+
+            if (index == -1) return;
+
+            var temp = buffer.Substring(index);
+            string keyString = temp.Split()[1];
+            try {
+                HotKeys[hotKey.Key] = (KeyCode)Enum.Parse(typeof(KeyCode), keyString); 
+            } catch (Exception e) {
+                Console.WriteLine("Exception: " + e.Message);
+                GUIManager.getInstance().AddTextLine("There was a error in loading the settings for hotkey name '" + hotKey.Key + "' reverting to default hotkey.");
             }
         }
 
         //this function will extract a plugin info out of the buffer.
-        private static void HandlePluginFile(int numberOfPlugins, string buffer) {
-            int index = -1;
-            string temp = default(string);
-            index = buffer.IndexOf("PluginFileName" + numberOfPlugins, StringComparison.Ordinal);
-            if (index != -1) {
-                temp = buffer.Substring(index);
-                string[] settings = temp.Split();
-                try {
-                    PluginInfo pluginInfo = new PluginInfo(settings[1].Trim());
-                    pluginInfo.ShouldLoadPlugin = Convert.ToBoolean(settings[2].Trim());
+        private static void HandlePluginFile(int numberOfPlugins, string buffer)
+        {
+            var index = buffer.IndexOf("PluginFileName" + numberOfPlugins, StringComparison.Ordinal);
+            
+            if (index == -1) return;
 
-                    SettingsManager.PluginList.Add(pluginInfo);
-                } catch (Exception e) {
-                    Console.WriteLine("Exception: " + e.Message);
-                    GUIManager.getInstance().AddTextLine("Failed to load settings for plugin '" + settings[1] + "' Plugin Info will be discarded.");
-                }
+            var temp = buffer.Substring(index);
+            string[] settings = temp.Split();
+            try {
+                PluginInfo pluginInfo = new PluginInfo(settings[1].Trim())
+                {
+                    ShouldLoadPlugin = Convert.ToBoolean(settings[2].Trim())
+                };
+
+                PluginList.Add(pluginInfo);
+            } catch (Exception e) {
+                Console.WriteLine("Exception: " + e.Message);
+                GUIManager.getInstance().AddTextLine("Failed to load settings for plugin '" + settings[1] + "' Plugin Info will be discarded.");
             }
         }
 
         //this will get a bool out of the buffer
         private static void ExtractBoolean(string stringToSearchFor, string buffer, ref bool boolToChange) {
-            int index = -1;
-            string temp = default(string);
-            index = buffer.IndexOf(stringToSearchFor);
-            if (index != -1) {
-                temp = buffer.Substring(index);
-                temp = temp.Split()[1];
-                if (temp != default(string)) {
-                    temp = temp.Trim();
-                    try {
-                        boolToChange = Convert.ToBoolean(temp);
-                    } catch (Exception e) {
-                        Console.WriteLine("Exception: " + e.Message);
-                        GUIManager.getInstance().AddTextLine("Failed to Convert '" + temp + "' to boolean. make sure it is 'True' or 'False'");
-                    }
-                }
+            var index = buffer.IndexOf(stringToSearchFor, StringComparison.Ordinal);
+            
+            if (index == -1) return;
+
+            var temp = buffer.Substring(index);
+            temp = temp.Split()[1];
+
+            if (temp == default(string)) return;
+
+            temp = temp.Trim();
+            try {
+                boolToChange = Convert.ToBoolean(temp);
+            } catch (Exception e) {
+                Console.WriteLine("Exception: " + e.Message);
+                GUIManager.getInstance().AddTextLine("Failed to Convert '" + temp + "' to boolean. make sure it is 'True' or 'False'");
             }
         }
     }

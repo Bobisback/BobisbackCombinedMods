@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
-using Timber_and_Stone.API;
-using Timber_and_Stone.API.Event;
-using Timber_and_Stone.Event;
-using EventHandler = Timber_and_Stone.API.Event.EventHandler;
 using System.Timers;
 
 namespace Plugin.Bobisback.CombinedMods {
 
-    class GuiWindowCheatMenu : MonoBehaviour {
+    public class GUIWindowCheatMenu : MonoBehaviour 
+    {
         private static readonly float ButtonHeight = 32;
         private static readonly float LeftRightMargin = 15;
         private static readonly float TopBottomMargin = 7.5f;
@@ -26,18 +21,20 @@ namespace Plugin.Bobisback.CombinedMods {
 
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
-        void Start() {
+        public void Start()
+        {
             UpdateTimer.Elapsed += UpdateGameVariables;
             UpdateTimer.Start();
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
         //This is also were any hotkeys are intercepted.
-        void Update() {
+        public void Update()
+        {
             if (Input.GetKeyDown(SettingsManager.HotKeys["toggleCheatMenuHotKey"])) {
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu] == false) {
                     SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu] = true;
-                    AManager<WorldManager>.getInstance().controllerObj.GetComponent<ControlPlayer>().DeSelect();
+                    WorldManager.getInstance().PlayerFaction.DeSelect();
                     AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
                 } else {
                     SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu] = false;
@@ -47,7 +44,8 @@ namespace Plugin.Bobisback.CombinedMods {
 
         //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
         //No model data should built/manipulated.
-        void OnGui() {
+        public void OnGUI() 
+        {
             if (guiMgr.inGame && !guiMgr.gameOver) {
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu]) {
                     windowRect = GUI.Window(WindowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
@@ -60,7 +58,7 @@ namespace Plugin.Bobisback.CombinedMods {
             Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
             guiMgr.DrawWindow(backGroundWindow, guiName, false);
 
-            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, this.guiMgr.closeWindowButtonStyle)) {
+            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, guiMgr.closeWindowButtonStyle)) {
                 SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu] = false;
                 return;
             }
@@ -84,43 +82,59 @@ namespace Plugin.Bobisback.CombinedMods {
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Spawn Enemy")) {
-                int ranNum = UnityEngine.Random.Range(1, 6);
-                string enemyToSpawn = "";
-                switch (ranNum) {
-                    case 1: enemyToSpawn = "goblin";
-                        break;
-                    case 2: enemyToSpawn = "mountedGoblin";
-                        break;
-                    case 3: enemyToSpawn = "skeleton";
-                        break;
-                    case 4: enemyToSpawn = "wolf";
-                        break;
-                    case 5: enemyToSpawn = "spider";
-                        break;
-                    case 6: enemyToSpawn = "necromancer";
-                        break;
-                    case 7: enemyToSpawn = "spiderLord";
-                        break;
-                }
+
+                GUIWindowModOptions.DisplayMessage("Disabled", "Feature Disabled For right now. Full invasion menu in the works. Maybe....");
+                //int ranNum = UnityEngine.Random.Range(1, 6);
+                //string enemyToSpawn = "";
+                //switch (ranNum) {
+                //    case 1: enemyToSpawn = "goblin";
+                //        break;
+                //    case 2: enemyToSpawn = "mountedGoblin";
+                //        break;
+                //    case 3: enemyToSpawn = "skeleton";
+                //        break;
+                //    case 4: enemyToSpawn = "wolf";
+                //        break;
+                //    case 5: enemyToSpawn = "spider";
+                //        break;
+                //    case 6: enemyToSpawn = "necromancer";
+                //        break;
+                //    case 7: enemyToSpawn = "spiderLord";
+                //        break;
+                //}
                 
-                UnitManager.getInstance().AddEnemy(enemyToSpawn, GetRandomPosition(), false, -1);
+                //TODO UnitManager.getInstance().AddEnemy(enemyToSpawn, getRandomPosition(), false, -1);
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Kill All Enemies")) {
-                UnitManager.getInstance().killAllEnemies();
+                IFaction playerFaction = WorldManager.getInstance().PlayerFaction;
+                // NOTE: UnityEngine.Object.FindObjectsOfType is slow
+                foreach (ALivingEntity unit in (ALivingEntity[])FindObjectsOfType(typeof(ALivingEntity))) {
+                    if (playerFaction.getAlignmentToward(unit.faction) == Alignment.Enemy) {
+                        unit.hitpoints = 0;
+                        unit.spottedTimer = float.PositiveInfinity;
+                    }
+                }
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Max All Resources")) {
-                ResourceManager.getInstance().CheatResources();
+                GUIWindowModOptions.DisplayMessage("Disabled", "Seems to be broken atm. Not sure why it is not working.");
+                //ResourceManager.getInstance().CheatResources();
+                //for (int i = 0; i < ResourceManager.getInstance().materials.Length; i++) {
+                //    if (ResourceManager.getInstance().materials[i] < 999) 
+                //    {
+                //        ResourceManager.getInstance().materials[i] = 999;
+                //    }
+                //}
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Hunger", ref SettingsManager.BoolSettings[(int)Preferences.Hunger]);
 
-            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Fatigue", ref SettingsManager.BoolSettings[(int)Preferences.Fatigue]);
+            //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            //guiMgr.DrawCheckBox(buttonRect, "Fatigue", ref SettingsManager.BoolSettings[(int)Preferences.Fatigue]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Invincible", ref SettingsManager.BoolSettings[(int)Preferences.Invincible]);
@@ -153,26 +167,23 @@ namespace Plugin.Bobisback.CombinedMods {
                     }
                 }
             }
-            return new Vector3(AManager<WorldManager>.getInstance().GetEdgePosition() * num2 + num3 * (0.1f + (float)UnityEngine.Random.Range(-256, 257) * 0.1f), 0f, AManager<WorldManager>.getInstance().GetEdgePosition() * num3 + num2 * (0.1f + (float)UnityEngine.Random.Range(-256, 257) * 0.1f));
+            return new Vector3(AManager<WorldManager>.getInstance().GetEdgePosition() * num2 + num3 * (0.1f + UnityEngine.Random.Range(-256, 257) * 0.1f), 0f, AManager<WorldManager>.getInstance().GetEdgePosition() * num3 + num2 * (0.1f + UnityEngine.Random.Range(-256, 257) * 0.1f));
         }
 
-        private void UpdateGameVariables(object sender, ElapsedEventArgs e) {
-            if (SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu]) {
+        private void UpdateGameVariables(object sender, ElapsedEventArgs e)
+        {
+            if (!SettingsManager.BoolSettings[(int) Preferences.ToggleCheatMenu]) return;
+
+            foreach (APlayableEntity settler in WorldManager.getInstance().PlayerFaction.units.OfType<APlayableEntity>().Where(x => x.isAlive())) {
                 if (!SettingsManager.BoolSettings[(int)Preferences.Hunger]) {
-                    foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) {
-                        settler.hunger = 0;
-                    }
+                    settler.hunger = 0;
                 }
-                if (!SettingsManager.BoolSettings[(int)Preferences.Fatigue]) {
-                    foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) {
-                        settler.fatigue = 1;
-                    }
-                }
+                //if (!SettingsManager.BoolSettings[(int)Preferences.Fatigue]) {
+                //    settler.fatigue = 1;
+                //}
                 if (SettingsManager.BoolSettings[(int)Preferences.Invincible]) {
-                    foreach (APlayableEntity settler in UnitManager.getInstance().playerUnits) {
-                        settler.maxHP = 200f;
-                        settler.hitpoints = settler.maxHP;
-                    }
+                    settler.maxHP = 200f;
+                    settler.hitpoints = settler.maxHP;
                 }
             }
         }

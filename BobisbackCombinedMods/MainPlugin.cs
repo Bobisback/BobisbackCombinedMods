@@ -9,22 +9,22 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This function is called when the mod loads at startup
         /// </summary>
         public override void OnLoad() {
-            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods Loaded");
+            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v1.5 Loaded");
             //add all of our GUI's to the game
-            GUIManager.getInstance().gameObject.AddComponent(typeof(GuiWindowTripleSpeed));
-            GUIManager.getInstance().gameObject.AddComponent(typeof(GuiWindowIdleSettlers));
-            GUIManager.getInstance().gameObject.AddComponent(typeof(GuiWindowCheatMenu));
-            GUIManager.getInstance().gameObject.AddComponent(typeof(GuiWindowModOptions));
-            GUIManager.getInstance().gameObject.AddComponent(typeof(GuiWindowControlGroup));
+            GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowTripleSpeed));
+            GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowIdleSettlers));
+            GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowCheatMenu));
+            GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowModOptions));
+            GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowControlGroup));
             SettingsManager.LoadSettings(); //Load the settings for the game
-            GuiWindowModOptions.DisplayMessage("Combined Mod Loaded", "Press '" + SettingsManager.HotKeys["toggleOptionsMenuHotKey"] + "' at any time to access the options menu. Thanks for checking this mod out!");
+            GUIWindowModOptions.DisplayMessage("Combined Mod Loaded", "Press '" + SettingsManager.HotKeys["toggleOptionsMenuHotKey"] + "' at any time to access the options menu. Thanks for checking this mod out!");
         }
 
         /// <summary>
         /// This function is also called on mod startup. It is called after OnLoad
         /// </summary>
         public override void OnEnable() {
-            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods Enabled");
+            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v1.5 Enabled");
             EventManager.getInstance().Register(this);
         }
 
