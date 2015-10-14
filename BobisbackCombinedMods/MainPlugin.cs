@@ -17,6 +17,7 @@ namespace Plugin.Bobisback.CombinedMods {
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowModOptions));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowControlGroup));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowInvasionMenus));
+            GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowReviveTheFallen));
             //GUIManager.getInstance().gameObject.AddComponent(typeof(GUIDisplaySettlerCount));
             SettingsManager.LoadSettings(); //Load the settings for the game
             GUIWindowModOptions.DisplayMessage("Combined Mod Loaded", "Press '" + SettingsManager.HotKeys["toggleOptionsMenuHotKey"] + "' at any time to access the options menu. Thanks for checking this mod out!");
@@ -29,29 +30,6 @@ namespace Plugin.Bobisback.CombinedMods {
         public override void OnEnable() {
             EventManager.getInstance().Register(this);
             GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v" + Assembly.GetExecutingAssembly().GetName().Version + " Enabled");
-        }
-
-        [EventHandler(Priority.Normal)]
-        public void OnInvasionNormal(EventInvasion evt)
-        {
-            if (SettingsManager.BoolSettings[(int)Preferences.NoInvasions])
-            {
-                evt.result = Result.Deny;
-            }
-        }
-
-        [EventHandler(Priority.Monitor)]
-        public void OnInvasionMonitor(EventInvasion evt)
-        {
-            if (evt.result == Result.Deny)
-            {
-                GUIManager.getInstance().AddTextLine("A " + evt.invasion.getName() + " invasion has been cancelled");
-                return;
-            }
-
-            if (SettingsManager.BoolSettings[(int)Preferences.InvasionsInfo]) {
-                GUIManager.getInstance().AddTextLine("A " + evt.invasion.getName() + " invasion of " + evt.invasion.getUnits().Count + " units has spawned.");
-            }
         }
 
         /// <summary>

@@ -55,6 +55,7 @@
     <Compile Include="GUIWindowModOptions.cs" />
     <Compile Include="GUIWindowCheatMenu.cs" />
     <Compile Include="GUIWindowIdleSettlers.cs" />
+    <Compile Include="GUIWindowReviveTheFallen.cs" />
     <Compile Include="GUIWindowTripleSpeed.cs" />
     <Compile Include="MainPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

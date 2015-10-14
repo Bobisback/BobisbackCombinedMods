@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.Timers;
 using Timber_and_Stone;
-using Timber_and_Stone.Invasion;
-using Timber_and_Stone.Utility;
-using Random = System.Random;
+using Timber_and_Stone.API.Event;
+using Timber_and_Stone.Event;
 
 namespace Plugin.Bobisback.CombinedMods
 {
 
-    public class GUIWindowCheatMenu : MonoBehaviour
+    public class GUIWindowCheatMenu : MonoBehaviour, IEventListener
     {
         private static readonly float ButtonHeight = 32;
         private static readonly float LeftRightMargin = 15;
@@ -31,6 +29,7 @@ namespace Plugin.Bobisback.CombinedMods
 
         public static bool CustomInvasionMenu;
         public static bool StandardInvasionMenu;
+        public static bool ReviveTheFallenMenu;
 
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
@@ -43,6 +42,8 @@ namespace Plugin.Bobisback.CombinedMods
             foreach (Resource resource in ResourceManager.getInstance().resources.Where(resource => resource != null)) {
                 storageIndexCounts[resource.storageIndex]++;
             }
+
+            EventManager.getInstance().Register(this);
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
@@ -100,16 +101,19 @@ namespace Plugin.Bobisback.CombinedMods
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Standard Invasion Menu")) {
-                //GUIWindowModOptions.DisplayMessage("Disabled", "Feature Disabled For right now. Full invasion menu in the works. Maybe....");
                 StandardInvasionMenu = true;
                 CustomInvasionMenu = false;
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Custom Invasion Menu")) {
-                //GUIWindowModOptions.DisplayMessage("Disabled", "Feature Disabled For right now. Full invasion menu in the works. Maybe....");
                 CustomInvasionMenu = true;
                 StandardInvasionMenu = false;
+            }
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Revive The Fallen")) {
+                ReviveTheFallenMenu = true;
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
@@ -137,7 +141,7 @@ namespace Plugin.Bobisback.CombinedMods
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Clear Enemy Corpses"))
+            if (guiMgr.DrawButton(buttonRect, "Clear All Corpses"))
             {
                 IFaction playerFaction = WorldManager.getInstance().PlayerFaction;
                 foreach (ALivingEntity unit in (ALivingEntity[])FindObjectsOfType(typeof(ALivingEntity))) {
@@ -204,12 +208,6 @@ namespace Plugin.Bobisback.CombinedMods
                 if (!SettingsManager.BoolSettings[(int)Preferences.Hunger]) {
                     settler.hunger = 0;
                 }
-                if (SettingsManager.BoolSettings[(int)Preferences.Invincible]) {
-                    settler.maxHP = 200f;
-                    settler.hitpoints = settler.maxHP;
-                } else {
-                    settler.maxHP = 100f;
-                }
             }
 
             if (unlimitedResources) {
@@ -247,6 +245,36 @@ namespace Plugin.Bobisback.CombinedMods
                 foreach (Resource resource in resourceManager.resources) {
                     storage.addResource(resource, 999);
                 }
+            }
+        }
+
+        [Timber_and_Stone.API.Event.EventHandler(Priority.Normal)]
+        public void OnEntityDeath(EventEntityDeath evt)
+        {
+            if (SettingsManager.BoolSettings[(int)Preferences.Invincible] && ReferenceEquals(evt.getUnit().faction, WorldManager.getInstance().PlayerFaction)) {
+                evt.result = Result.Deny;
+                evt.getUnit().hitpoints = evt.getUnit().maxHP;
+            }
+        }
+
+        [Timber_and_Stone.API.Event.EventHandler(Priority.Normal)]
+        public void OnInvasionNormal(EventInvasion evt)
+        {
+            if (SettingsManager.BoolSettings[(int)Preferences.NoInvasions]) {
+                evt.result = Result.Deny;
+            }
+        }
+
+        [Timber_and_Stone.API.Event.EventHandler(Priority.Monitor)]
+        public void OnInvasionMonitor(EventInvasion evt)
+        {
+            if (evt.result == Result.Deny) {
+                GUIManager.getInstance().AddTextLine("A " + evt.invasion.getName() + " invasion has been cancelled");
+                return;
+            }
+
+            if (SettingsManager.BoolSettings[(int)Preferences.InvasionsInfo]) {
+                GUIManager.getInstance().AddTextLine("A " + evt.invasion.getName() + " invasion of " + evt.invasion.getUnits().Count + " units has spawned.");
             }
         }
     }
