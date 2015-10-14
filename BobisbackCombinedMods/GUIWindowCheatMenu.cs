@@ -182,6 +182,12 @@ namespace Plugin.Bobisback.CombinedMods
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Invincible", ref SettingsManager.BoolSettings[(int)Preferences.Invincible]);
 
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Eternal Light", ref SettingsManager.BoolSettings[(int)Preferences.EternalLight]);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Eternal Night", ref SettingsManager.BoolSettings[(int)Preferences.EternalNight]);
+
             //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             //guiMgr.DrawCheckBox(buttonRect, "Disable Line Of Sight", ref SettingsManager.BoolSettings[(int)Preferences.DisableLOS]);
 
@@ -391,6 +397,23 @@ namespace Plugin.Bobisback.CombinedMods
                 //TODO
             }
 
+            if (SettingsManager.BoolSettings[(int)Preferences.EternalLight])
+            {
+                SettingsManager.BoolSettings[(int) Preferences.EternalNight] = false;
+                TimeManager.getInstance().hour = 12;
+                TimeManager.getInstance().time = 12f;
+                TimeManager.getInstance().timeOfDay = "Eternal Light";
+                guiMgr.UpdateTime(AManager<TimeManager>.getInstance().day, AManager<TimeManager>.getInstance().timeOfDay);
+            }
+
+            if (SettingsManager.BoolSettings[(int)Preferences.EternalNight])
+            {
+                TimeManager.getInstance().hour = 0;
+                TimeManager.getInstance().time = 0f;
+                TimeManager.getInstance().timeOfDay = "Eternal Night";
+                guiMgr.UpdateTime(TimeManager.getInstance().day, TimeManager.getInstance().timeOfDay);
+            }
+            
             foreach (APlayableEntity settler in WorldManager.getInstance().PlayerFaction.units.OfType<APlayableEntity>().Where(x => x.isAlive())) {
                 if (!SettingsManager.BoolSettings[(int)Preferences.Hunger]) {
                     settler.hunger = 0;

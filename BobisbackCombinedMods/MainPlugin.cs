@@ -1,4 +1,5 @@
-﻿using Timber_and_Stone.API;
+﻿using System.Reflection;
+using Timber_and_Stone.API;
 using Timber_and_Stone.API.Event;
 using Timber_and_Stone.Event;
 
@@ -18,7 +19,7 @@ namespace Plugin.Bobisback.CombinedMods {
             //GUIManager.getInstance().gameObject.AddComponent(typeof(GUIDisplaySettlerCount));
             SettingsManager.LoadSettings(); //Load the settings for the game
             GUIWindowModOptions.DisplayMessage("Combined Mod Loaded", "Press '" + SettingsManager.HotKeys["toggleOptionsMenuHotKey"] + "' at any time to access the options menu. Thanks for checking this mod out!");
-            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v1.5.2 Loaded");
+            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v" + Assembly.GetExecutingAssembly().GetName().Version + " Loaded");
         }
 
         /// <summary>
@@ -26,7 +27,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// </summary>
         public override void OnEnable() {
             EventManager.getInstance().Register(this);
-            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v1.5.2 Enabled");
+            GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v" + Assembly.GetExecutingAssembly().GetName().Version + " Enabled");
         }
 
         [EventHandler(Priority.Normal)]
