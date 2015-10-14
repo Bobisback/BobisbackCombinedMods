@@ -51,6 +51,7 @@
     <Compile Include="BobisbackPluginManager.cs" />
     <Compile Include="GUIDisplaySettlerCount.cs" />
     <Compile Include="GUIWindowControlGroup.cs" />
+    <Compile Include="GUIWindowInvasionMenus.cs" />
     <Compile Include="GUIWindowModOptions.cs" />
     <Compile Include="GUIWindowCheatMenu.cs" />
     <Compile Include="GUIWindowIdleSettlers.cs" />
