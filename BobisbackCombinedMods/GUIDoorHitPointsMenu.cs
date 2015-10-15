@@ -125,7 +125,6 @@ namespace Plugin.Bobisback.CombinedMods
             buttonRect.height = 24;
             shownAmountToMutiplyDefault = "" + amountToMutiplyDefault;
             guiMgr.DrawTextCenteredWhite(buttonRect,shownAmountToMutiplyDefault);
-            //shownAmountToMutiplyDefault = guiMgr.DrawTextFieldCenteredWhite("amountToMutiplyDefault", buttonRect, shownAmountToMutiplyDefault, 6);
             int.TryParse(shownAmountToMutiplyDefault, out amountToMutiplyDefault);
             buttonRect.x += 84;
             buttonRect.width = 20;
@@ -409,7 +408,7 @@ namespace Plugin.Bobisback.CombinedMods
                     structure.health = SettingsManager.CurrentCastleHp;
                     break;
             }
-            GUIManager.getInstance().AddTextLine(structure.structureName + " has " + structure.health + " health.");
+            //GUIManager.getInstance().AddTextLine(structure.structureName + " has " + structure.health + " health.");
         }
 
         private void SetCurrentHpToDefault()

@@ -8,6 +8,7 @@ namespace Plugin.Bobisback.CombinedMods {
     public class GUIWindowTripleSpeed : MonoBehaviour {
       
         private readonly GUIManager guiMgr = GUIManager.getInstance();
+        private readonly TimeManager timeManager = TimeManager.getInstance();
 
         //This is called alot less then ongui and can have some model data manipulation in it.
         //This is also were any hotkeys are intercepted.
@@ -20,6 +21,43 @@ namespace Plugin.Bobisback.CombinedMods {
                     AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
                 } else {
                     SettingsManager.BoolSettings[(int)Preferences.ToggleTripleSpeed] = false;
+                }
+            }
+
+            if (Input.GetKeyDown(SettingsManager.HotKeys["nextGameSpeedHotkey"]))
+            {
+                if (Time.timeScale == 6f)
+                {
+                    timeManager.play(1f);
+                }
+                else
+                {
+                    timeManager.play(Time.timeScale + 1f);
+                }
+            }
+
+            if (Input.GetKeyDown(SettingsManager.HotKeys["previousGameSpeedHotkey"])) 
+            {
+
+                if (Time.timeScale == 1f) 
+                {
+                    timeManager.play(6f);
+                }
+                else 
+                {
+                    timeManager.play(Time.timeScale - 1f);
+                }
+            }
+
+            if (Input.GetKeyDown(SettingsManager.HotKeys["pauseHotkey"])) 
+            {
+                if (WorldManager.getInstance().paused)
+                {
+                    timeManager.play();
+                }
+                else
+                {
+                    timeManager.pause();
                 }
             }
         }

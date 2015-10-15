@@ -62,9 +62,12 @@ namespace Plugin.Bobisback.CombinedMods {
             {"toggleIdleSettlersHotKey", KeyCode.B},
             {"toggleOptionsMenuHotKey", KeyCode.V},
             {"toggleCheatMenuHotKey", KeyCode.M},
-            {"ToggleDoorHitpointsMenuHotKey", KeyCode.C},
+            {"ToggleDoorHitpointsMenuHotKey", KeyCode.Z},
             {"previousIdleSettler", KeyCode.Comma},
             {"nextIdleSettler", KeyCode.Period},
+            {"previousGameSpeedHotkey", KeyCode.LeftArrow},
+            {"nextGameSpeedHotkey", KeyCode.RightArrow},
+            {"pauseHotkey", KeyCode.R}
         };
 
         /// <summary>
