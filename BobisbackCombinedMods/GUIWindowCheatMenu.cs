@@ -24,8 +24,6 @@ namespace Plugin.Bobisback.CombinedMods
         private static readonly Timer UpdateTimer = new Timer(500);
         private int[] storageIndexCounts;
         private bool add999Resources;
-        private bool resetResouces;
-        private bool unlimitedResources;
 
         public static bool CustomInvasionMenu;
         public static bool StandardInvasionMenu;
@@ -130,7 +128,7 @@ namespace Plugin.Bobisback.CombinedMods
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Add 999 Resources")) {
-                if (unlimitedResources) return;
+                if (SettingsManager.BoolSettings[(int)Preferences.UnlimitedResources]) return;
 
                 IStorage storage = WorldManager.getInstance().PlayerFaction.storage;
                 ResourceManager resourceManager = ResourceManager.getInstance();
@@ -161,7 +159,7 @@ namespace Plugin.Bobisback.CombinedMods
             guiMgr.DrawCheckBox(buttonRect, "Show Invasion Info", ref SettingsManager.BoolSettings[(int)Preferences.InvasionsInfo]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Unlimited Resources", ref unlimitedResources);
+            guiMgr.DrawCheckBox(buttonRect, "Unlimited Resources", ref SettingsManager.BoolSettings[(int)Preferences.UnlimitedResources]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Invincible", ref SettingsManager.BoolSettings[(int)Preferences.Invincible]);
@@ -210,7 +208,7 @@ namespace Plugin.Bobisback.CombinedMods
                 }
             }
 
-            if (unlimitedResources) {
+            if (SettingsManager.BoolSettings[(int)Preferences.UnlimitedResources]) {
                 IStorageController storage = WorldManager.getInstance().PlayerFaction.storage as IStorageController;
 
                 if (storage == null) {

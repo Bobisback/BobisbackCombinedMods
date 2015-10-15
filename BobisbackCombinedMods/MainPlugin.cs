@@ -10,6 +10,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This function is called when the mod loads at startup
         /// </summary>
         public override void OnLoad() {
+            SettingsManager.LoadSettings(); //Load the settings for the game
             //add all of our GUI's to the game
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowTripleSpeed));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowIdleSettlers));
@@ -18,8 +19,8 @@ namespace Plugin.Bobisback.CombinedMods {
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowControlGroup));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowInvasionMenus));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowReviveTheFallen));
+            GUIManager.getInstance().gameObject.AddComponent(typeof(GUIDoorHitPointsMenu));
             //GUIManager.getInstance().gameObject.AddComponent(typeof(GUIDisplaySettlerCount));
-            SettingsManager.LoadSettings(); //Load the settings for the game
             GUIWindowModOptions.DisplayMessage("Combined Mod Loaded", "Press '" + SettingsManager.HotKeys["toggleOptionsMenuHotKey"] + "' at any time to access the options menu. Thanks for checking this mod out!");
             GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v" + Assembly.GetExecutingAssembly().GetName().Version + " Loaded");
         }

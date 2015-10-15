@@ -12,6 +12,8 @@ namespace Plugin.Bobisback.CombinedMods {
     /// </summary>
     public enum Preferences
     {
+        //Door Hitpoints Menu
+        ToggleDoorHitpointsMenu, DoorHpEnabled,
         //Settler count window
         ToggleSettlerCount,
         //GUIWindowTripleSpeed options
@@ -21,7 +23,7 @@ namespace Plugin.Bobisback.CombinedMods {
         //GUIWindowModOptions options
         ToggleOptionsMenu,
         //GUIWindowCheatMenu options
-        ToggleCheatMenu, Hunger, NoInvasions, Invincible, InvasionsInfo, DisableLOS, EternalLight, EternalNight,
+        ToggleCheatMenu, Hunger, NoInvasions, Invincible, InvasionsInfo, DisableLOS, EternalLight, EternalNight, UnlimitedResources,
         //Control group options
         EnableControlGroups,
         //Total number of options always needs to be last aka add more options above
@@ -37,11 +39,12 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
+            false, false, //init door hitpoints menu
             false, //init settler count window
             true, //init GUIWindowTripleSpeed options
             true, false, false, false, false, false, false, //init GUIWindowIdleSettlers options
             true, //init GUIWindowModOptions options
-            false, true, false, false, false, false, false, false, //init GUIWindowCheatMenu options 
+            false, true, false, false, false, false, false, false, false, //init GUIWindowCheatMenu options 
             true //init control groups
         };
 
@@ -59,6 +62,7 @@ namespace Plugin.Bobisback.CombinedMods {
             {"toggleIdleSettlersHotKey", KeyCode.B},
             {"toggleOptionsMenuHotKey", KeyCode.V},
             {"toggleCheatMenuHotKey", KeyCode.M},
+            {"ToggleDoorHitpointsMenuHotKey", KeyCode.C},
             {"previousIdleSettler", KeyCode.Comma},
             {"nextIdleSettler", KeyCode.Period},
         };
@@ -72,6 +76,13 @@ namespace Plugin.Bobisback.CombinedMods {
             string.Empty, string.Empty, string.Empty, 
             string.Empty,  string.Empty
         };
+
+        public static float CurrentFenceHp = GUIDoorHitPointsMenu.DefaultFenceHp;
+        public static float CurrentTimberHp = GUIDoorHitPointsMenu.DefaultTimberHp;
+        public static float CurrentBracedHp = GUIDoorHitPointsMenu.DefaultBracedHp;
+        public static float CurrentStuddedHp = GUIDoorHitPointsMenu.DefaultStuddedHp;
+        public static float CurrentDungeonHp = GUIDoorHitPointsMenu.DefaultDungeonHp;
+        public static float CurrentCastleHp = GUIDoorHitPointsMenu.DefaultCastleHp;
 
         /// <summary>
         /// This will load all the settings for the mod form a hard coded settings file name.
@@ -112,6 +123,9 @@ namespace Plugin.Bobisback.CombinedMods {
                     numberOfPlugins++;
                 }
 
+                //get all the door hp values from the file
+                ExtractDoorHpValues(buffer);
+
                 sr.Close();
                 GUIManager.getInstance().AddTextLine("Settings Loaded");
             } catch (Exception e) {
@@ -149,6 +163,15 @@ namespace Plugin.Bobisback.CombinedMods {
                     sw.WriteLine("<controlGroup=" + i + ">" + (string.IsNullOrEmpty(ControlGroupSettlers[i]) ? "" : ControlGroupSettlers[i]) + "</controlGroup>");
                 }
 
+                //save all the door hp values to the file
+                sw.WriteLine("//This is the door hp values");
+                sw.WriteLine("CurrentFenceHp " + CurrentFenceHp);
+                sw.WriteLine("CurrentTimberHp " + CurrentTimberHp);
+                sw.WriteLine("CurrentBracedHp " + CurrentBracedHp);
+                sw.WriteLine("CurrentStuddedHp " + CurrentStuddedHp);
+                sw.WriteLine("CurrentDungeonHp " + CurrentDungeonHp);
+                sw.WriteLine("CurrentCastleHp " + CurrentCastleHp);
+
                 //write any loaded plugins to the file
                 sw.WriteLine("//Below are all all plugins being loaded. Plugins have the structure 'PluginFileName(n) fileName shouldLoadPlugin'");
                 sw.WriteLine("//With n being the amount of plugins (has to start at 0), file name, then weather the plugin should be loaded at game start.");
@@ -163,6 +186,102 @@ namespace Plugin.Bobisback.CombinedMods {
             } catch (Exception e) {
                 File.WriteAllText("./saves/BobisbackLog.txt", "Settings Failed To Save Exception: " + e.Message);
                 Console.WriteLine("Exception: " + e.Message);
+            }
+        }
+
+        private static void ExtractDoorHpValues(string buffer)
+        {
+            if (buffer.Contains("CurrentFenceHp"))
+            {
+                var index = buffer.IndexOf("CurrentFenceHp", StringComparison.Ordinal);
+
+                if (index != -1)
+                {
+                    var temp = buffer.Substring(index);
+                    string keyString = temp.Split()[1];
+                    try
+                    {
+                        CurrentFenceHp = float.Parse(keyString);
+                    } catch (Exception e) {
+                        Console.WriteLine("Exception: " + e.Message);
+                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings CurrentFenceHp");
+                    }
+                }
+            }
+
+            if (buffer.Contains("CurrentTimberHp")) {
+                var index = buffer.IndexOf("CurrentTimberHp", StringComparison.Ordinal);
+
+                if (index != -1) {
+                    var temp = buffer.Substring(index);
+                    string keyString = temp.Split()[1];
+                    try {
+                        CurrentTimberHp = float.Parse(keyString);
+                    } catch (Exception e) {
+                        Console.WriteLine("Exception: " + e.Message);
+                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentTimberHp");
+                    }
+                }
+            }
+
+            if (buffer.Contains("CurrentBracedHp")) {
+                var index = buffer.IndexOf("CurrentBracedHp", StringComparison.Ordinal);
+
+                if (index != -1) {
+                    var temp = buffer.Substring(index);
+                    string keyString = temp.Split()[1];
+                    try {
+                        CurrentBracedHp = float.Parse(keyString);
+                    } catch (Exception e) {
+                        Console.WriteLine("Exception: " + e.Message);
+                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentBracedHp");
+                    }
+                }
+            }
+
+            if (buffer.Contains("CurrentStuddedHp")) {
+                var index = buffer.IndexOf("CurrentStuddedHp", StringComparison.Ordinal);
+
+                if (index != -1) {
+                    var temp = buffer.Substring(index);
+                    string keyString = temp.Split()[1];
+                    try {
+                        CurrentStuddedHp = float.Parse(keyString);
+                    } catch (Exception e) {
+                        Console.WriteLine("Exception: " + e.Message);
+                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentStuddedHp");
+                    }
+                }
+            }
+
+            if (buffer.Contains("CurrentDungeonHp")) {
+                var index = buffer.IndexOf("CurrentDungeonHp", StringComparison.Ordinal);
+
+                if (index != -1) {
+                    var temp = buffer.Substring(index);
+                    string keyString = temp.Split()[1];
+                    try {
+                        CurrentDungeonHp = float.Parse(keyString);
+                    } catch (Exception e) {
+                        Console.WriteLine("Exception: " + e.Message);
+                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentDungeonHp");
+                    }
+                }
+            }
+
+            if (buffer.Contains("CurrentCastleHp")) {
+                var index = buffer.IndexOf("CurrentCastleHp", StringComparison.Ordinal);
+
+                if (index != -1) {
+                    var temp = buffer.Substring(index);
+                    string keyString = temp.Split()[1];
+                    try {
+                        CurrentCastleHp = float.Parse(keyString);
+                    } catch (Exception e) {
+                        Console.WriteLine("Exception: " + e.Message);
+                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentCastleHp");
+                    }
+                }
             }
         }
 

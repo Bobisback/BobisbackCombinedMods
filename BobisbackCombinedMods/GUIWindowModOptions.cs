@@ -108,17 +108,20 @@ namespace Plugin.Bobisback.CombinedMods {
             float buttonAboveHeight = TopBottomMargin;
 
             Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Idle Settlers Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers]);
+            guiMgr.DrawCheckBox(buttonRect, "Idle Settlers Menu", ref SettingsManager.BoolSettings[(int)Preferences.ToggleIdleSettlers]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Control Groups", ref SettingsManager.BoolSettings[(int)Preferences.EnableControlGroups]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Game Speed Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleTripleSpeed]);
+            guiMgr.DrawCheckBox(buttonRect, "Game Speed GUI", ref SettingsManager.BoolSettings[(int)Preferences.ToggleTripleSpeed]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Cheat Menu Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu]);
-           
+            guiMgr.DrawCheckBox(buttonRect, "Cheat Menu", ref SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu]);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Door HP Menu", ref SettingsManager.BoolSettings[(int)Preferences.ToggleDoorHitpointsMenu]);
+
             //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             //guiMgr.DrawCheckBox(buttonRect, "Settler Count Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleSettlerCount]);
 

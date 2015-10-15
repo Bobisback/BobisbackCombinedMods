@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="BobisbackPluginManager.cs" />
     <Compile Include="GUIDisplaySettlerCount.cs" />
+    <Compile Include="GUIDoorHitPointsMenu.cs" />
     <Compile Include="GUIWindowControlGroup.cs" />
     <Compile Include="GUIWindowInvasionMenus.cs" />
     <Compile Include="GUIWindowModOptions.cs" />

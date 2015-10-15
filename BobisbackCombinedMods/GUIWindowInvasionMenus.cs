@@ -13,13 +13,13 @@ namespace Plugin.Bobisback.CombinedMods
 
     public class GUIWindowInvasionMenus : MonoBehaviour
     {
-        private static readonly float ButtonHeight = 32;
-        private static readonly float LeftRightMargin = 15;
-        private static readonly float TopBottomMargin = 7.5f;
-        private static readonly float InbetweenMargin = 2.5f;
+        private const float ButtonHeight = 32;
+        private const float LeftRightMargin = 15;
+        private const float TopBottomMargin = 7.5f;
+        private const float InbetweenMargin = 2.5f;
         private Rect windowRect = new Rect(370, 200, 300, 237);
-        private static readonly int StandardInvasionWindowId = 504;
-        private static readonly int CustomInvasionWindowId = 505;
+        private const int StandardInvasionWindowId = 504;
+        private const int CustomInvasionWindowId = 505;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
         private readonly String invasionGUIName = "Standard Invasion Menu";
