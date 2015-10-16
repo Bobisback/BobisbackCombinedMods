@@ -150,7 +150,7 @@ namespace Plugin.Bobisback.CombinedMods
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "No Hunger", ref SettingsManager.BoolSettings[(int)Preferences.Hunger]);
+            guiMgr.DrawCheckBox(buttonRect, "No Hunger", ref SettingsManager.BoolSettings[(int)Preferences.NoHunger]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "No Invasions", ref SettingsManager.BoolSettings[(int)Preferences.NoInvasions]);
@@ -203,7 +203,7 @@ namespace Plugin.Bobisback.CombinedMods
             }
             
             foreach (APlayableEntity settler in WorldManager.getInstance().PlayerFaction.units.OfType<APlayableEntity>().Where(x => x.isAlive())) {
-                if (!SettingsManager.BoolSettings[(int)Preferences.Hunger]) {
+                if (SettingsManager.BoolSettings[(int)Preferences.NoHunger]) {
                     settler.hunger = 0;
                 }
             }

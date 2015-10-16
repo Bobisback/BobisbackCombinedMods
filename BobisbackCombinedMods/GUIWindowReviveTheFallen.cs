@@ -117,6 +117,7 @@ namespace Plugin.Bobisback.CombinedMods
                 }
                 else
                 {
+                    settler.Destroy();
                     GUIManager.getInstance().AddTextLine("Can only revive Humans");
                 }
             }

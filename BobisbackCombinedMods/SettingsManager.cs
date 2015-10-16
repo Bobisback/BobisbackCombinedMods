@@ -23,7 +23,7 @@ namespace Plugin.Bobisback.CombinedMods {
         //GUIWindowModOptions options
         ToggleOptionsMenu,
         //GUIWindowCheatMenu options
-        ToggleCheatMenu, Hunger, NoInvasions, Invincible, InvasionsInfo, DisableLOS, EternalLight, EternalNight, UnlimitedResources,
+        ToggleCheatMenu, NoHunger, NoInvasions, Invincible, InvasionsInfo, DisableLOS, EternalLight, EternalNight, UnlimitedResources,
         //Control group options
         EnableControlGroups,
         //Total number of options always needs to be last aka add more options above
@@ -44,7 +44,7 @@ namespace Plugin.Bobisback.CombinedMods {
             true, //init GUIWindowTripleSpeed options
             true, false, false, false, false, false, false, //init GUIWindowIdleSettlers options
             true, //init GUIWindowModOptions options
-            false, true, false, false, false, false, false, false, false, //init GUIWindowCheatMenu options 
+            false, false, false, false, false, false, false, false, false, //init GUIWindowCheatMenu options 
             true //init control groups
         };
 
