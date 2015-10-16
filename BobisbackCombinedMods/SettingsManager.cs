@@ -13,7 +13,7 @@ namespace Plugin.Bobisback.CombinedMods {
     public enum Preferences
     {
         //Door Hitpoints Menu
-        ToggleDoorHitpointsMenu, DoorHpEnabled,
+        ToggleDoorHitpointsMenu, DoorHpEnabled, ShowDoorInfo, ShowHealthBars,
         //Settler count window
         ToggleSettlerCount,
         //GUIWindowTripleSpeed options
@@ -27,7 +27,7 @@ namespace Plugin.Bobisback.CombinedMods {
         //Control group options
         EnableControlGroups,
         //Total number of options always needs to be last aka add more options above
-        TotalOptions
+        TotalOptions,
     };
 
     /// <summary>
@@ -39,7 +39,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
-            false, false, //init door hitpoints menu
+            false, false, false, true,//init door hitpoints menu
             false, //init settler count window
             true, //init GUIWindowTripleSpeed options
             true, false, false, false, false, false, false, //init GUIWindowIdleSettlers options

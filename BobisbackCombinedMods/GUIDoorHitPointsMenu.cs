@@ -1,4 +1,6 @@
-﻿using System.Timers;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Timers;
 using Timber_and_Stone.API.Event;
 using Timber_and_Stone.Event;
 using UnityEngine;
@@ -16,6 +18,7 @@ namespace Plugin.Bobisback.CombinedMods
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
         private const string GUIName = "Door Hitpoints menu";
+        private List<BuildStructure> theDoors = new List<BuildStructure>();
 
         private static readonly Timer UpdateTimer = new Timer(500);
 
@@ -79,6 +82,13 @@ namespace Plugin.Bobisback.CombinedMods
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleDoorHitpointsMenu]) {
                     windowRect = GUI.Window(WindowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
                 }
+
+                if (SettingsManager.BoolSettings[(int)Preferences.ShowHealthBars])
+                {
+                    foreach (BuildStructure structure in theDoors) {
+                        DrawHpBarAboveStructure(structure);
+                    }   
+                }
             }
         }
 
@@ -96,6 +106,12 @@ namespace Plugin.Bobisback.CombinedMods
 
             Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Apply Settings To New Doors", ref SettingsManager.BoolSettings[(int)Preferences.DoorHpEnabled]);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight + (ButtonHeight + InbetweenMargin), (windowRect.width - LeftRightMargin * 2) / 2 - (InbetweenMargin / 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Show Door Hp Bars", ref SettingsManager.BoolSettings[(int)Preferences.ShowHealthBars]);
+
+            buttonRect = new Rect((LeftRightMargin) + ((windowRect.width - LeftRightMargin * 2) / 2 - (InbetweenMargin / 2)) + InbetweenMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), (windowRect.width - LeftRightMargin * 2) / 2 - (InbetweenMargin / 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Show Door Info", ref SettingsManager.BoolSettings[(int)Preferences.ShowDoorInfo]);
 
             //Mutiply default textfield
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
@@ -373,18 +389,23 @@ namespace Plugin.Bobisback.CombinedMods
 
         private void UpdateHpOnAllDoors()
         {
-            if (!SettingsManager.BoolSettings[(int)Preferences.DoorHpEnabled]) return;
-
             foreach (BuildStructure structure in WorldManager.getInstance().PlayerFaction.structures) {
-                if (structure.transform != null && structure.transform.FindChild("HingeObject") != null && structure.transform.FindChild("HingeObject").GetComponent<Door>() == null) continue;
-
-                UpdateDoorHp(structure);
+                if (structure.structureName.Contains("Gate") || structure.structureName.Contains("Door"))
+                {
+                    UpdateDoorHp(structure);
+                }
             }
         }
 
         private void UpdateDoorHp(BuildStructure structure)
         {
-            if (!SettingsManager.BoolSettings[(int)Preferences.DoorHpEnabled]) return;
+            if (!SettingsManager.BoolSettings[(int) Preferences.DoorHpEnabled])
+            {
+                if (SettingsManager.BoolSettings[(int)Preferences.ShowDoorInfo]) {
+                    GUIManager.getInstance().AddTextLine(structure.structureName + " has " + structure.health + " health.");
+                }
+                return;
+            }
 
             switch (structure.structureName)
             {
@@ -408,7 +429,11 @@ namespace Plugin.Bobisback.CombinedMods
                     structure.health = SettingsManager.CurrentCastleHp;
                     break;
             }
-            //GUIManager.getInstance().AddTextLine(structure.structureName + " has " + structure.health + " health.");
+
+            if (SettingsManager.BoolSettings[(int)Preferences.ShowDoorInfo])
+            {
+                GUIManager.getInstance().AddTextLine(structure.structureName + " has " + structure.health + " health.");                
+            }
         }
 
         private void SetCurrentHpToDefault()
@@ -453,14 +478,60 @@ namespace Plugin.Bobisback.CombinedMods
 
         private void UpdateGameVariables(object sender, ElapsedEventArgs e)
         {
-            
+            if (SettingsManager.BoolSettings[(int)Preferences.ShowHealthBars])
+            {
+                theDoors.Clear();
+                foreach (BuildStructure structure in WorldManager.getInstance().PlayerFaction.structures) {
+                    if (structure.structureName.Contains("Gate") || structure.structureName.Contains("Door"))
+                    {
+                        if (!theDoors.Contains(structure))
+                        {
+                            theDoors.Add(structure);
+                        }
+                        GUIManager.getInstance().AddTextLine(structure.structureName + " has " + structure.health + " health.");                
+                    }
+                    else
+                    {
+                        theDoors.Remove(structure);
+                    }
+                }
+            }
+        }
+
+        private void DrawHpBarAboveStructure(BuildStructure structure)
+        {
+            float hpPrecent = 0f;
+
+            switch (structure.structureName) {
+                case "Fence Gate":
+                    hpPrecent = structure.health / SettingsManager.CurrentFenceHp;
+                    break;
+                case "Timber Door":
+                    hpPrecent = structure.health / SettingsManager.CurrentTimberHp;
+                    break;
+                case "Braced Door":
+                    hpPrecent = structure.health / SettingsManager.CurrentBracedHp;
+                    break;
+                case "Studded Door":
+                    hpPrecent = structure.health / SettingsManager.CurrentStuddedHp;
+                    break;
+                case "Dungeon Door":
+                    hpPrecent = structure.health / SettingsManager.CurrentDungeonHp;
+                    break;
+                case "Castle Arch Gate":
+                case "Castle Gate":
+                    hpPrecent = structure.health / SettingsManager.CurrentCastleHp;
+                    break;
+            }
+
+            Vector3 vector = Camera.mainCamera.WorldToViewportPoint(structure.transform.position + new Vector3(0f, 0.6f, 0f));
+            guiMgr.DrawProgressBar(new Rect(Screen.width * vector.x - 40f, Screen.height - Screen.height * vector.y, 80f, 16f), hpPrecent, true);
         }
 
         [Timber_and_Stone.API.Event.EventHandler(Priority.Normal)]
         public void OnBuildStructure(EventBuildStructure evt)
         {
-            if (evt.structure.transform == null || evt.structure.transform.FindChild("HingeObject") == null ||
-                evt.structure.transform.FindChild("HingeObject").GetComponent<Door>() == null) return;
+            if (evt.structure.structureName.Contains("Gate") || evt.structure.structureName.Contains("Door")) return;
             
             UpdateDoorHp(evt.structure);
         }
