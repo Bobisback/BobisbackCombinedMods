@@ -94,7 +94,7 @@ namespace Plugin.Bobisback.CombinedMods
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Spawn Normal Invasion (" + weightedWealth + ")")) {
-                //GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+                GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
                 WorldManager.getInstance().SpawnInvasion(weightedWealth);
             }
 
@@ -191,7 +191,13 @@ namespace Plugin.Bobisback.CombinedMods
 
             GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
 
-            WorldManager.getInstance().SpawnInvasion(generators.RandomElement().CreateInvasion(invasionPoints));
+            IInvasionGenerator invasionGenerator = generators.WeightedRandomElement(element => element.getPriority());
+
+            if (invasionGenerator == null) {
+                GUIManager.getInstance().AddTextLine("Invasion Failed to Spawn");
+            } else {
+                WorldManager.getInstance().SpawnInvasion(invasionGenerator.CreateInvasion(invasionPoints));
+            }
         }
 
         private int CalculateWeightedWealth()

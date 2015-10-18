@@ -23,5 +23,12 @@ namespace Plugin.Bobisback.CombinedMods.Extension_Methods {
         public static T RandomElement<T>(this List<T> array) {
             return array[UnityEngine.Random.Range(0, array.Count)];
         }
+
+        public static T WeightedRandomElement<T>(this IEnumerable<T> source, Func<T, float> predicate) {
+            List<KeyValuePair<T, float>> source2 = (from element in source
+                                                    select new KeyValuePair<T, float>(element, Mathf.Max(predicate(element), 0f))).ToList();
+            float pick = source2.Sum(element => element.Value) * UnityEngine.Random.value;
+            return source2.SkipWhile(element => (pick -= element.Value) > 0f).First().Key;
+        }
     }
 }

@@ -179,7 +179,14 @@ namespace Plugin.Bobisback.CombinedMods
 
             float difficultyPrecent = (float)difficultyPrecentAsInt/100;
 
-            WorldManager.getInstance().SpawnInvasion(generators.RandomElement().CreateInvasion((int) (weightedWealth * difficultyPrecent)));
+            IInvasionGenerator invasionGenerator = generators.WeightedRandomElement(element => element.getPriority());
+
+            if (invasionGenerator == null) {
+                GUIManager.getInstance().AddTextLine("Invasion Failed to Spawn");
+            } else {
+                WorldManager.getInstance().SpawnInvasion(invasionGenerator.CreateInvasion((int)(weightedWealth * difficultyPrecent)));
+            }
+            //GUIManager.getInstance().AddTextLine("Spawned Invasion with weight of: " + (weightedWealth * difficultyPrecent));
         }
 
         private int CalculateWeightedWealth() {
