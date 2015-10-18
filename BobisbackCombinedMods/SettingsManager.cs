@@ -10,8 +10,9 @@ namespace Plugin.Bobisback.CombinedMods {
     /// This enum allows indexing into the bool array called boolSettings. 
     /// This enum is used to help keep track of all the settings in the mod.
     /// </summary>
-    public enum Preferences
-    {
+    public enum Preferences {
+        //GUIWindowInvasionDifficultyMenu
+        DifficultySettingsEnabled,
         //Door Hitpoints Menu
         ToggleDoorHitpointsMenu, DoorHpEnabled, ShowDoorInfo, ShowHealthBars,
         //Settler count window
@@ -39,6 +40,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
+            false, //init GUIWindowInvasionDifficultyMenu 
             false, false, false, true,//init door hitpoints menu
             false, //init settler count window
             true, //init GUIWindowTripleSpeed options

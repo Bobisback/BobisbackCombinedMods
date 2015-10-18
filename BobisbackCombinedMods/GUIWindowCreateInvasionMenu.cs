@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using System.Timers;
 using Timber_and_Stone;
+using Timber_and_Stone.API.Event;
+using Timber_and_Stone.Event;
 using Timber_and_Stone.Invasion;
 using Timber_and_Stone.Utility;
 using Random = System.Random;
@@ -11,19 +13,17 @@ using Random = System.Random;
 namespace Plugin.Bobisback.CombinedMods
 {
 
-    public class GUIWindowInvasionMenus : MonoBehaviour
+    public class GUIWindowCreateInvasionMenu : MonoBehaviour, IEventListener
     {
         private const float ButtonHeight = 32;
         private const float LeftRightMargin = 15;
         private const float TopBottomMargin = 7.5f;
         private const float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(370, 200, 300, 237);
-        private const int StandardInvasionWindowId = 504;
-        private const int CustomInvasionWindowId = 505;
+        private Rect windowRect = new Rect(570, 200, 360, 237);
+        private const int CreateInvasionWindowId = 505;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
-        private readonly String invasionGUIName = "Standard Invasion Menu";
-        private readonly String customInvasionGUIName = "Custom Invasion Menu";
+        private readonly String createInvasionGuiName = "Spawn Invasion Menu";
 
         private static readonly Timer UpdateTimer = new Timer(500);
 
@@ -45,6 +45,8 @@ namespace Plugin.Bobisback.CombinedMods
             UpdateTimer.Start();
             shownInvasionPoints = "0";
             invasionPoints = 0;
+
+            EventManager.getInstance().Register(this);
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
@@ -59,22 +61,19 @@ namespace Plugin.Bobisback.CombinedMods
         public void OnGUI()
         {
             if (guiMgr.inGame && !guiMgr.gameOver) {
-                if (GUIWindowCheatMenu.StandardInvasionMenu) {
-                    windowRect = GUI.Window(StandardInvasionWindowId, windowRect, BuildStandardInvasionMenu, string.Empty, guiMgr.windowBoxStyle);
-                }
-                if (GUIWindowCheatMenu.CustomInvasionMenu) {
-                    windowRect = GUI.Window(CustomInvasionWindowId, windowRect, BuildCustomInvasionMenu, string.Empty, guiMgr.windowBoxStyle);
+                if (GUIWindowCheatMenu.CreateInvasionMenu) {
+                    windowRect = GUI.Window(CreateInvasionWindowId, windowRect, BuildCreateInvasionMenu, string.Empty, guiMgr.windowBoxStyle);
                 }
             }
         }
 
-        private void BuildStandardInvasionMenu(int id)
+        private void BuildCreateInvasionMenu(int id)
         {
             Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
-            guiMgr.DrawWindow(backGroundWindow, invasionGUIName, false);
+            guiMgr.DrawWindow(backGroundWindow, createInvasionGuiName, false);
 
             if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, guiMgr.closeWindowButtonStyle)) {
-                GUIWindowCheatMenu.StandardInvasionMenu = false;
+                GUIWindowCheatMenu.CreateInvasionMenu = false;
                 return;
             }
 
@@ -87,49 +86,31 @@ namespace Plugin.Bobisback.CombinedMods
             guiMgr.DrawTextLeftBlack(buttonRect, "Weighted Wealth: " + weightedWealth);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Easy Invasion (" + (weightedWealth / 2) + ")")) {
+            if (guiMgr.DrawButton(buttonRect, "Spawn Easy Invasion (" + (weightedWealth / 2) + ")")) {
+                GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
                 WorldManager.getInstance().SpawnInvasion(weightedWealth / 2);
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Normal Invasion (" + weightedWealth + ")")) {
+            if (guiMgr.DrawButton(buttonRect, "Spawn Normal Invasion (" + weightedWealth + ")")) {
+                //GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
                 WorldManager.getInstance().SpawnInvasion(weightedWealth);
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Hard Invasion (" + (weightedWealth * 2) + ")")) {
+            if (guiMgr.DrawButton(buttonRect, "Spawn Hard Invasion (" + (weightedWealth * 2) + ")")) {
+                GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
                 WorldManager.getInstance().SpawnInvasion(weightedWealth * 2);
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Insane Invasion (" + (weightedWealth * 4) + ")")) {
+            if (guiMgr.DrawButton(buttonRect, "Spawn Insane Invasion (" + (weightedWealth * 4) + ")")) {
+                GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
                 WorldManager.getInstance().SpawnInvasion(weightedWealth * 4);
             }
 
-            windowRect.height = buttonAboveHeight + ButtonHeight + InbetweenMargin + TopBottomMargin;
-
-            GUI.DragWindow();
-        }
-        private void BuildCustomInvasionMenu(int id)
-        {
-            Rect backGroundWindow = new Rect(0f, 0f, windowRect.width, windowRect.height);
-            guiMgr.DrawWindow(backGroundWindow, customInvasionGUIName, false);
-
-            if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, guiMgr.closeWindowButtonStyle)) {
-                GUIWindowCheatMenu.CustomInvasionMenu = false;
-                return;
-            }
-
-            float buttonAboveHeight = TopBottomMargin;
-
-            Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawTextLeftBlack(buttonRect, "Wealth: " + wealth);
-
-            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawTextLeftBlack(buttonRect, "Weighted Wealth: " + weightedWealth);
-
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, " Necromancer Invasion", ref necromancer);
+            guiMgr.DrawCheckBox(buttonRect, "Necromancer Invasion", ref necromancer);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Undead Invasion", ref undead);
@@ -173,7 +154,7 @@ namespace Plugin.Bobisback.CombinedMods
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Spawn Random Invasion")) {
+            if (guiMgr.DrawButton(buttonRect, "Spawn Invasion With Settings")) {
                 SpawnInvasion();
             }
 
@@ -206,6 +187,8 @@ namespace Plugin.Bobisback.CombinedMods
                 GUIWindowModOptions.DisplayMessage("No Invasion Started", "You need at least one invasion type selected.");
                 return;
             }
+
+            GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
 
             var randomNumber = new Random().Next(generators.Count);
             WorldManager.getInstance().SpawnInvasion(generators[randomNumber].CreateInvasion(invasionPoints));

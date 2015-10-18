@@ -52,7 +52,8 @@
     <Compile Include="GUIDisplaySettlerCount.cs" />
     <Compile Include="GUIDoorHitPointsMenu.cs" />
     <Compile Include="GUIWindowControlGroup.cs" />
-    <Compile Include="GUIWindowInvasionMenus.cs" />
+    <Compile Include="GUIWindowCreateInvasionMenu.cs" />
+    <Compile Include="GUIWindowInvasionDifficultyMenu.cs" />
     <Compile Include="GUIWindowModOptions.cs" />
     <Compile Include="GUIWindowCheatMenu.cs" />
     <Compile Include="GUIWindowIdleSettlers.cs" />

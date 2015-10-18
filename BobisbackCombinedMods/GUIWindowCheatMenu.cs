@@ -25,8 +25,8 @@ namespace Plugin.Bobisback.CombinedMods
         private int[] storageIndexCounts;
         private bool add999Resources;
 
-        public static bool CustomInvasionMenu;
-        public static bool StandardInvasionMenu;
+        public static bool CreateInvasionMenu;
+        public static bool InvasionDifficultyMenu;
         public static bool ReviveTheFallenMenu;
 
         //This function is called once when this window starts up. 
@@ -98,15 +98,13 @@ namespace Plugin.Bobisback.CombinedMods
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Standard Invasion Menu")) {
-                StandardInvasionMenu = true;
-                CustomInvasionMenu = false;
+            if (guiMgr.DrawButton(buttonRect, "Spawn Invasion Menu")) {
+                CreateInvasionMenu = true;
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Custom Invasion Menu")) {
-                CustomInvasionMenu = true;
-                StandardInvasionMenu = false;
+            if (guiMgr.DrawButton(buttonRect, "Invasion Difficulty Menu")) {
+                InvasionDifficultyMenu = true;
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
@@ -252,27 +250,6 @@ namespace Plugin.Bobisback.CombinedMods
             if (SettingsManager.BoolSettings[(int)Preferences.Invincible] && ReferenceEquals(evt.getUnit().faction, WorldManager.getInstance().PlayerFaction)) {
                 evt.result = Result.Deny;
                 evt.getUnit().hitpoints = evt.getUnit().maxHP;
-            }
-        }
-
-        [Timber_and_Stone.API.Event.EventHandler(Priority.Normal)]
-        public void OnInvasionNormal(EventInvasion evt)
-        {
-            if (SettingsManager.BoolSettings[(int)Preferences.NoInvasions]) {
-                evt.result = Result.Deny;
-            }
-        }
-
-        [Timber_and_Stone.API.Event.EventHandler(Priority.Monitor)]
-        public void OnInvasionMonitor(EventInvasion evt)
-        {
-            if (evt.result == Result.Deny) {
-                GUIManager.getInstance().AddTextLine("A " + evt.invasion.getName() + " invasion has been cancelled");
-                return;
-            }
-
-            if (SettingsManager.BoolSettings[(int)Preferences.InvasionsInfo]) {
-                GUIManager.getInstance().AddTextLine("A " + evt.invasion.getName() + " invasion of " + evt.invasion.getUnits().Count + " units has spawned.");
             }
         }
     }
