@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.Timers;
+using Plugin.Bobisback.CombinedMods.Extension_Methods;
 using Timber_and_Stone;
 using Timber_and_Stone.API.Event;
 using Timber_and_Stone.Event;
@@ -190,8 +191,7 @@ namespace Plugin.Bobisback.CombinedMods
 
             GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
 
-            var randomNumber = new Random().Next(generators.Count);
-            WorldManager.getInstance().SpawnInvasion(generators[randomNumber].CreateInvasion(invasionPoints));
+            WorldManager.getInstance().SpawnInvasion(generators.RandomElement().CreateInvasion(invasionPoints));
         }
 
         private int CalculateWeightedWealth()

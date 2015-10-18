@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BobisbackPluginManager.cs" />
+    <Compile Include="Extension_Methods\Extension_Methods.cs" />
     <Compile Include="GUIDisplaySettlerCount.cs" />
     <Compile Include="GUIDoorHitPointsMenu.cs" />
     <Compile Include="GUIWindowControlGroup.cs" />
@@ -62,6 +63,8 @@
     <Compile Include="MainPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingsManager.cs" />
+    <Compile Include="Tasks\WorkRepairDoor.cs" />
+    <Compile Include="WorkPools\RepairDoorWorkPool.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
