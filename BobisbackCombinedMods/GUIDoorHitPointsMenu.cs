@@ -384,7 +384,7 @@ namespace Plugin.Bobisback.CombinedMods
             SettingsManager.CurrentBracedHp = 450;
             SettingsManager.CurrentStuddedHp = 600;
             SettingsManager.CurrentDungeonHp = 1000;
-            SettingsManager.CurrentCastleHp = 4000;
+            SettingsManager.CurrentCastleHp = 2500;
         }
 
         private void SetCurrentHpToNew() {
