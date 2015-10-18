@@ -12,7 +12,7 @@ namespace Plugin.Bobisback.CombinedMods {
     /// </summary>
     public enum Preferences {
         //GUIWindowInvasionDifficultyMenu
-        DifficultySettingsEnabled, NoWolfDifficultySetting, NoNecromancerDifficultySetting,
+        ToggleInvasionDifficultyMenu, DifficultySettingsEnabled, NoWolfDifficultySetting, NoNecromancerDifficultySetting,
         NoGoblinDifficultySetting, NoSpiderDifficultySetting, NoUndeadDifficultySetting,
         //Door Hitpoints Menu
         ToggleDoorHitpointsMenu, DoorHpEnabled, ShowDoorInfo, ShowHealthBars,
@@ -41,7 +41,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
-            false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 
+            false, false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 
             false, false, false, true,//init door hitpoints menu
             false, //init settler count window
             true, //init GUIWindowTripleSpeed options
@@ -69,7 +69,8 @@ namespace Plugin.Bobisback.CombinedMods {
             {"previousIdleSettler", KeyCode.Comma},
             {"nextIdleSettler", KeyCode.Period},
             {"previousGameSpeedHotkey", KeyCode.LeftArrow},
-            {"nextGameSpeedHotkey", KeyCode.RightArrow}
+            {"nextGameSpeedHotkey", KeyCode.RightArrow},
+            {"toggleInvasionDifficultyMenuHotKey", KeyCode.L}
         };
 
         /// <summary>

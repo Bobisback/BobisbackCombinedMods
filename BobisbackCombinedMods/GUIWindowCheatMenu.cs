@@ -26,7 +26,6 @@ namespace Plugin.Bobisback.CombinedMods
         private bool add999Resources;
 
         public static bool CreateInvasionMenu;
-        public static bool InvasionDifficultyMenu;
         public static bool ReviveTheFallenMenu;
 
         //This function is called once when this window starts up. 
@@ -100,11 +99,6 @@ namespace Plugin.Bobisback.CombinedMods
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Spawn Invasion Menu")) {
                 CreateInvasionMenu = true;
-            }
-
-            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Invasion Difficulty Menu")) {
-                InvasionDifficultyMenu = true;
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);

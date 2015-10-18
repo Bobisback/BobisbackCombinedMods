@@ -78,11 +78,10 @@ namespace Plugin.Bobisback.CombinedMods
         //No model data should built/manipulated.
         public void OnGUI()
         {
+            if (SettingsManager.BoolSettings[(int)Preferences.ToggleDoorHitpointsMenu]) {
+                windowRect = GUI.Window(WindowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
+            }
             if (guiMgr.inGame && !guiMgr.gameOver) {
-                if (SettingsManager.BoolSettings[(int)Preferences.ToggleDoorHitpointsMenu]) {
-                    windowRect = GUI.Window(WindowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
-                }
-
                 if (SettingsManager.BoolSettings[(int)Preferences.ShowHealthBars])
                 {
                     foreach (BuildStructure structure in theDoors) {

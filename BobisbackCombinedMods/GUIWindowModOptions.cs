@@ -122,6 +122,9 @@ namespace Plugin.Bobisback.CombinedMods {
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Door HP Menu", ref SettingsManager.BoolSettings[(int)Preferences.ToggleDoorHitpointsMenu]);
 
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Difficulty Menu", ref SettingsManager.BoolSettings[(int)Preferences.ToggleInvasionDifficultyMenu]);
+
             //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             //guiMgr.DrawCheckBox(buttonRect, "Settler Count Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleSettlerCount]);
 

@@ -47,16 +47,22 @@ namespace Plugin.Bobisback.CombinedMods
         //This is called alot less then ongui and can have some model data manipulation in it.
         //This is also were any hotkeys are intercepted.
         public void Update() {
-
+            if (Input.GetKeyDown(SettingsManager.HotKeys["toggleInvasionDifficultyMenuHotKey"])) {
+                if (SettingsManager.BoolSettings[(int)Preferences.ToggleInvasionDifficultyMenu] == false) {
+                    SettingsManager.BoolSettings[(int)Preferences.ToggleInvasionDifficultyMenu] = true;
+                    WorldManager.getInstance().PlayerFaction.DeSelect();
+                    AManager<GUIManager>.getInstance().GetComponent<MainMenus>().CloseAll();
+                } else {
+                    SettingsManager.BoolSettings[(int)Preferences.ToggleInvasionDifficultyMenu] = false;
+                }
+            }
         }
 
         //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 
         //No model data should built/manipulated.
         public void OnGUI() {
-            if (guiMgr.inGame && !guiMgr.gameOver) {
-                if (GUIWindowCheatMenu.InvasionDifficultyMenu) {
-                    windowRect = GUI.Window(InvasionDifficultyWindowId, windowRect, BuildInvasionDifficultyMenu, string.Empty, guiMgr.windowBoxStyle);
-                }
+            if (SettingsManager.BoolSettings[(int)Preferences.ToggleInvasionDifficultyMenu]) {
+                windowRect = GUI.Window(InvasionDifficultyWindowId, windowRect, BuildInvasionDifficultyMenu, string.Empty, guiMgr.windowBoxStyle);
             }
         }
 
@@ -65,7 +71,7 @@ namespace Plugin.Bobisback.CombinedMods
             guiMgr.DrawWindow(backGroundWindow, invasionDifficultyGUIName, false);
 
             if (GUI.Button(new Rect(backGroundWindow.xMax - 24f, backGroundWindow.yMin + 4f, 20f, 20f), string.Empty, guiMgr.closeWindowButtonStyle)) {
-                GUIWindowCheatMenu.InvasionDifficultyMenu = false;
+                SettingsManager.BoolSettings[(int)Preferences.ToggleInvasionDifficultyMenu] = false;
                 return;
             }
 
@@ -137,10 +143,10 @@ namespace Plugin.Bobisback.CombinedMods
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawTextLeftBlack(buttonRect, "Weighted Wealth: " + weightedWealth);
+            guiMgr.DrawTextLeftBlack(buttonRect, "Weighted Wealth: " + (!guiMgr.inGame ? "n/a" : "" + weightedWealth));
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawTextLeftBlack(buttonRect, "New Difficulty: " + weightedWealth * ((float)SettingsManager.DifficultyPrecentAsInt / 100));
+            guiMgr.DrawTextLeftBlack(buttonRect, "New Difficulty: " + (!guiMgr.inGame ? "n/a" : "" + weightedWealth * ((float)SettingsManager.DifficultyPrecentAsInt / 100)));
 
             windowRect.height = buttonAboveHeight + ButtonHeight + InbetweenMargin + TopBottomMargin;
 
