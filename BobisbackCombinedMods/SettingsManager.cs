@@ -12,7 +12,8 @@ namespace Plugin.Bobisback.CombinedMods {
     /// </summary>
     public enum Preferences {
         //GUIWindowInvasionDifficultyMenu
-        DifficultySettingsEnabled,
+        DifficultySettingsEnabled, NoWolfDifficultySetting, NoNecromancerDifficultySetting,
+        NoGoblinDifficultySetting, NoSpiderDifficultySetting, NoUndeadDifficultySetting,
         //Door Hitpoints Menu
         ToggleDoorHitpointsMenu, DoorHpEnabled, ShowDoorInfo, ShowHealthBars,
         //Settler count window
@@ -40,7 +41,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
-            false, //init GUIWindowInvasionDifficultyMenu 
+            false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 
             false, false, false, true,//init door hitpoints menu
             false, //init settler count window
             true, //init GUIWindowTripleSpeed options
@@ -88,6 +89,8 @@ namespace Plugin.Bobisback.CombinedMods {
         public static float CurrentDungeonHp = GUIDoorHitPointsMenu.DefaultDungeonHp;
         public static float CurrentCastleHp = GUIDoorHitPointsMenu.DefaultCastleHp;
 
+        public static int DifficultyPrecentAsInt = 100;
+
         /// <summary>
         /// This will load all the settings for the mod form a hard coded settings file name.
         /// </summary>
@@ -129,6 +132,8 @@ namespace Plugin.Bobisback.CombinedMods {
 
                 //get all the door hp values from the file
                 ExtractDoorHpValues(buffer);
+
+                ExtractInt(buffer, "DifficultyPrecentAsInt", ref DifficultyPrecentAsInt);
 
                 sr.Close();
                 GUIManager.getInstance().AddTextLine("Settings Loaded");
@@ -175,6 +180,7 @@ namespace Plugin.Bobisback.CombinedMods {
                 sw.WriteLine("CurrentStuddedHp " + CurrentStuddedHp);
                 sw.WriteLine("CurrentDungeonHp " + CurrentDungeonHp);
                 sw.WriteLine("CurrentCastleHp " + CurrentCastleHp);
+                sw.WriteLine("DifficultyPrecentAsInt " + DifficultyPrecentAsInt);
 
                 //write any loaded plugins to the file
                 sw.WriteLine("//Below are all all plugins being loaded. Plugins have the structure 'PluginFileName(n) fileName shouldLoadPlugin'");
@@ -195,95 +201,44 @@ namespace Plugin.Bobisback.CombinedMods {
 
         private static void ExtractDoorHpValues(string buffer)
         {
-            if (buffer.Contains("CurrentFenceHp"))
-            {
-                var index = buffer.IndexOf("CurrentFenceHp", StringComparison.Ordinal);
+            ExtractFloat(buffer, "CurrentFenceHp", ref CurrentFenceHp);
+            ExtractFloat(buffer, "CurrentTimberHp", ref CurrentTimberHp);
+            ExtractFloat(buffer, "CurrentBracedHp", ref CurrentBracedHp);
+            ExtractFloat(buffer, "CurrentStuddedHp", ref CurrentStuddedHp);
+            ExtractFloat(buffer, "CurrentDungeonHp", ref CurrentDungeonHp);
+            ExtractFloat(buffer, "CurrentCastleHp", ref CurrentCastleHp);
+        }
 
-                if (index != -1)
-                {
-                    var temp = buffer.Substring(index);
-                    string keyString = temp.Split()[1];
-                    try
-                    {
-                        CurrentFenceHp = float.Parse(keyString);
-                    } catch (Exception e) {
-                        Console.WriteLine("Exception: " + e.Message);
-                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings CurrentFenceHp");
-                    }
-                }
-            }
-
-            if (buffer.Contains("CurrentTimberHp")) {
-                var index = buffer.IndexOf("CurrentTimberHp", StringComparison.Ordinal);
+        private static void ExtractFloat(string buffer, string variableName, ref float variable)
+        {
+            if (buffer.Contains(variableName)) {
+                var index = buffer.IndexOf(variableName, StringComparison.Ordinal);
 
                 if (index != -1) {
                     var temp = buffer.Substring(index);
                     string keyString = temp.Split()[1];
                     try {
-                        CurrentTimberHp = float.Parse(keyString);
+                        variable = float.Parse(keyString);
                     } catch (Exception e) {
                         Console.WriteLine("Exception: " + e.Message);
-                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentTimberHp");
+                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for " + variableName);
                     }
                 }
             }
+        }
 
-            if (buffer.Contains("CurrentBracedHp")) {
-                var index = buffer.IndexOf("CurrentBracedHp", StringComparison.Ordinal);
+        private static void ExtractInt(string buffer, string variableName, ref int variable) {
+            if (buffer.Contains(variableName)) {
+                var index = buffer.IndexOf(variableName, StringComparison.Ordinal);
 
                 if (index != -1) {
                     var temp = buffer.Substring(index);
                     string keyString = temp.Split()[1];
                     try {
-                        CurrentBracedHp = float.Parse(keyString);
+                        variable = int.Parse(keyString);
                     } catch (Exception e) {
                         Console.WriteLine("Exception: " + e.Message);
-                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentBracedHp");
-                    }
-                }
-            }
-
-            if (buffer.Contains("CurrentStuddedHp")) {
-                var index = buffer.IndexOf("CurrentStuddedHp", StringComparison.Ordinal);
-
-                if (index != -1) {
-                    var temp = buffer.Substring(index);
-                    string keyString = temp.Split()[1];
-                    try {
-                        CurrentStuddedHp = float.Parse(keyString);
-                    } catch (Exception e) {
-                        Console.WriteLine("Exception: " + e.Message);
-                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentStuddedHp");
-                    }
-                }
-            }
-
-            if (buffer.Contains("CurrentDungeonHp")) {
-                var index = buffer.IndexOf("CurrentDungeonHp", StringComparison.Ordinal);
-
-                if (index != -1) {
-                    var temp = buffer.Substring(index);
-                    string keyString = temp.Split()[1];
-                    try {
-                        CurrentDungeonHp = float.Parse(keyString);
-                    } catch (Exception e) {
-                        Console.WriteLine("Exception: " + e.Message);
-                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentDungeonHp");
-                    }
-                }
-            }
-
-            if (buffer.Contains("CurrentCastleHp")) {
-                var index = buffer.IndexOf("CurrentCastleHp", StringComparison.Ordinal);
-
-                if (index != -1) {
-                    var temp = buffer.Substring(index);
-                    string keyString = temp.Split()[1];
-                    try {
-                        CurrentCastleHp = float.Parse(keyString);
-                    } catch (Exception e) {
-                        Console.WriteLine("Exception: " + e.Message);
-                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for CurrentCastleHp");
+                        GUIManager.getInstance().AddTextLine("There was a error in loading the settings for " + variableName);
                     }
                 }
             }

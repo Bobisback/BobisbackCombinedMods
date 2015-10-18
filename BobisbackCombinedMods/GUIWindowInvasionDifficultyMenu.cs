@@ -29,13 +29,8 @@ namespace Plugin.Bobisback.CombinedMods
 
         private float wealth;
         private int weightedWealth;
-        private bool noUndead;
-        private bool noGoblin;
-        private bool noSpider;
-        private bool noWolf;
-        private bool noNecromancer;
         private string shownDifficultyPrecent;
-        private int difficultyPrecentAsInt;
+        //private int SettingsManager.DifficultyPrecentAsInt;
 
         public static bool InvasionTiggeredByMod;
 
@@ -45,7 +40,6 @@ namespace Plugin.Bobisback.CombinedMods
             UpdateTimer.Elapsed += UpdateGameVariables;
             UpdateTimer.Start();
             shownDifficultyPrecent = "100%";
-            difficultyPrecentAsInt = 100;
 
             EventManager.getInstance().Register(this);
         }
@@ -81,19 +75,19 @@ namespace Plugin.Bobisback.CombinedMods
             guiMgr.DrawCheckBox(buttonRect, "Difficulty Settings Enabled", ref SettingsManager.BoolSettings[(int)Preferences.DifficultySettingsEnabled]);
             
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "No Necromancer Invasions", ref noNecromancer);
+            guiMgr.DrawCheckBox(buttonRect, "No Necromancer Invasions", ref SettingsManager.BoolSettings[(int)Preferences.NoNecromancerDifficultySetting]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "No Undead Invasions", ref noUndead);
+            guiMgr.DrawCheckBox(buttonRect, "No Undead Invasions", ref SettingsManager.BoolSettings[(int)Preferences.NoUndeadDifficultySetting]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "No Golbin Invasions", ref noGoblin);
+            guiMgr.DrawCheckBox(buttonRect, "No Golbin Invasions", ref SettingsManager.BoolSettings[(int)Preferences.NoGoblinDifficultySetting]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "No Spider Invasions", ref noSpider);
+            guiMgr.DrawCheckBox(buttonRect, "No Spider Invasions", ref SettingsManager.BoolSettings[(int)Preferences.NoSpiderDifficultySetting]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "No Wolf Invasions", ref noWolf);
+            guiMgr.DrawCheckBox(buttonRect, "No Wolf Invasions", ref SettingsManager.BoolSettings[(int)Preferences.NoWolfDifficultySetting]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawTextLeftWhite(buttonRect, "Difficulty Precentage: ");
@@ -102,42 +96,42 @@ namespace Plugin.Bobisback.CombinedMods
             buttonRect.height = 20;
             if (GUI.Button(buttonRect, string.Empty, guiMgr.minusButtonStyle)) {
                 if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
-                    if (difficultyPrecentAsInt >= 11) {
-                        difficultyPrecentAsInt -= 10;
+                    if (SettingsManager.DifficultyPrecentAsInt >= 11) {
+                        SettingsManager.DifficultyPrecentAsInt -= 10;
                     }
                 } else {
-                    if (difficultyPrecentAsInt >= 2) {
-                        difficultyPrecentAsInt--;
+                    if (SettingsManager.DifficultyPrecentAsInt >= 2) {
+                        SettingsManager.DifficultyPrecentAsInt--;
                     }
                 }
             }
             buttonRect.x += 20;
             buttonRect.width = 84;
             buttonRect.height = 24;
-            shownDifficultyPrecent = difficultyPrecentAsInt + "%";
+            shownDifficultyPrecent = SettingsManager.DifficultyPrecentAsInt + "%";
             shownDifficultyPrecent = guiMgr.DrawTextFieldCenteredWhite("invasionPoints", buttonRect, shownDifficultyPrecent, 4);
-            int.TryParse(shownDifficultyPrecent.Replace("%", ""), out difficultyPrecentAsInt);
-            if (difficultyPrecentAsInt > 999)
+            int.TryParse(shownDifficultyPrecent.Replace("%", ""), out SettingsManager.DifficultyPrecentAsInt);
+            if (SettingsManager.DifficultyPrecentAsInt > 999)
             {
-                difficultyPrecentAsInt = 999;
+                SettingsManager.DifficultyPrecentAsInt = 999;
             }
-            if (difficultyPrecentAsInt < 1)
+            if (SettingsManager.DifficultyPrecentAsInt < 1)
             {
-                difficultyPrecentAsInt = 1;
+                SettingsManager.DifficultyPrecentAsInt = 1;
             }
             buttonRect.x += 84;
             buttonRect.width = 20;
             buttonRect.height = 20;
             if (GUI.Button(buttonRect, string.Empty, guiMgr.plusButtonStyle)) {
                 if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
-                    if (difficultyPrecentAsInt < 990)
+                    if (SettingsManager.DifficultyPrecentAsInt < 990)
                     {
-                        difficultyPrecentAsInt += 10;
+                        SettingsManager.DifficultyPrecentAsInt += 10;
                     }
                 } else {
-                    if (difficultyPrecentAsInt < 999)
+                    if (SettingsManager.DifficultyPrecentAsInt < 999)
                     {
-                        difficultyPrecentAsInt++;
+                        SettingsManager.DifficultyPrecentAsInt++;
                     }
                 }
             }
@@ -146,7 +140,7 @@ namespace Plugin.Bobisback.CombinedMods
             guiMgr.DrawTextLeftBlack(buttonRect, "Weighted Wealth: " + weightedWealth);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawTextLeftBlack(buttonRect, "New Difficulty: " + weightedWealth * ((float)difficultyPrecentAsInt / 100));
+            guiMgr.DrawTextLeftBlack(buttonRect, "New Difficulty: " + weightedWealth * ((float)SettingsManager.DifficultyPrecentAsInt / 100));
 
             windowRect.height = buttonAboveHeight + ButtonHeight + InbetweenMargin + TopBottomMargin;
 
@@ -156,19 +150,19 @@ namespace Plugin.Bobisback.CombinedMods
         private void SpawnInvasion() {
             List<IInvasionGenerator> generators = new List<IInvasionGenerator>();
 
-            if (!noWolf) {
+            if (!SettingsManager.BoolSettings[(int)Preferences.NoWolfDifficultySetting]) {
                 generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is WolfInvasionGenerator));
             }
-            if (!noSpider) {
+            if (!SettingsManager.BoolSettings[(int)Preferences.NoSpiderDifficultySetting]) {
                 generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is SpiderInvasionGenerator));
             }
-            if (!noNecromancer) {
+            if (!SettingsManager.BoolSettings[(int)Preferences.NoNecromancerDifficultySetting]) {
                 generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is NecromancerInvasionGenerator));
             }
-            if (!noUndead) {
+            if (!SettingsManager.BoolSettings[(int)Preferences.NoUndeadDifficultySetting]) {
                 generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is SkeletonInvasionGenerator));
             }
-            if (!noGoblin) {
+            if (!SettingsManager.BoolSettings[(int)Preferences.NoGoblinDifficultySetting]) {
                 generators.Add(WorldManager.getInstance().InvasionGenerators.First(x => x is GoblinInvasionGenerator));
             }
 
@@ -177,7 +171,7 @@ namespace Plugin.Bobisback.CombinedMods
                 return;
             }
 
-            float difficultyPrecent = (float)difficultyPrecentAsInt/100;
+            float difficultyPrecent = (float)SettingsManager.DifficultyPrecentAsInt/100;
 
             IInvasionGenerator invasionGenerator = generators.WeightedRandomElement(element => element.getPriority());
 
@@ -211,7 +205,7 @@ namespace Plugin.Bobisback.CombinedMods
                 return;
             }
 
-            if (SettingsManager.BoolSettings[(int)Preferences.DifficultySettingsEnabled] && difficultyPrecentAsInt != 100)
+            if (SettingsManager.BoolSettings[(int)Preferences.DifficultySettingsEnabled] && SettingsManager.DifficultyPrecentAsInt != 100)
             {
                 //if it was not us that tiggered the invasion then cancel it and spawn a new one
                 if (!InvasionTiggeredByMod)
