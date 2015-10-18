@@ -48,18 +48,6 @@ namespace Plugin.Bobisback.CombinedMods {
                     timeManager.play(Time.timeScale - 1f);
                 }
             }
-
-            if (Input.GetKeyDown(SettingsManager.HotKeys["pauseHotkey"])) 
-            {
-                if (WorldManager.getInstance().paused)
-                {
-                    timeManager.play();
-                }
-                else
-                {
-                    timeManager.pause();
-                }
-            }
         }
 
         //called anywhere from 60 times a sec to 1000 times a second. Only display GUI in this function. 

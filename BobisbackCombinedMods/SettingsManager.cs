@@ -68,8 +68,7 @@ namespace Plugin.Bobisback.CombinedMods {
             {"previousIdleSettler", KeyCode.Comma},
             {"nextIdleSettler", KeyCode.Period},
             {"previousGameSpeedHotkey", KeyCode.LeftArrow},
-            {"nextGameSpeedHotkey", KeyCode.RightArrow},
-            {"pauseHotkey", KeyCode.R}
+            {"nextGameSpeedHotkey", KeyCode.RightArrow}
         };
 
         /// <summary>
