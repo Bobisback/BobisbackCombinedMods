@@ -33,8 +33,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Assembly-CSharp">
       <HintPath>Timber and Stone\Timber and Stone_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -49,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BobisbackPluginManager.cs" />
-    <Compile Include="Extension_Methods\Extension_Methods.cs" />
+    <Compile Include="DefaultGUIWindow.cs" />
     <Compile Include="GUIDisplaySettlerCount.cs" />
     <Compile Include="GUIDoorHitPointsMenu.cs" />
     <Compile Include="GUIWindowControlGroup.cs" />
@@ -59,6 +58,7 @@
     <Compile Include="GUIWindowCheatMenu.cs" />
     <Compile Include="GUIWindowIdleSettlers.cs" />
     <Compile Include="GUIWindowReviveTheFallen.cs" />
+    <Compile Include="GUIWindowTradeOverHaul.cs" />
     <Compile Include="GUIWindowTripleSpeed.cs" />
     <Compile Include="MainPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

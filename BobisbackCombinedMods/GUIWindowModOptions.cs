@@ -4,6 +4,8 @@ using UnityEngine;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Timers;
+using Timber_and_Stone.API.Event;
+using Timber_and_Stone.Event;
 
 namespace Plugin.Bobisback.CombinedMods {
 
@@ -11,14 +13,15 @@ namespace Plugin.Bobisback.CombinedMods {
     /// This class handles all the logic and display of the options menu, this includes
     /// loading mods, truning mods on and off and unloading mods.
     /// </summary>
-    class GUIWindowModOptions : MonoBehaviour {
+    public class GUIWindowModOptions : MonoBehaviour, IEventListener
+    {
 
         //all vars needed for displaying the windows
         private static readonly float ButtonHeight = 32;
         private static readonly float LeftRightMargin = 15;
         private static readonly float TopBottomMargin = 7.5f;
         private static readonly float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(180, 300, 240, 148);
+        private Rect windowRect = new Rect(150, 300, 240, 148);
         private static readonly int WindowId = 502;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
@@ -37,6 +40,8 @@ namespace Plugin.Bobisback.CombinedMods {
         //Do any one time setup/init things in this function.
         public void Start() {
             UpdateTimer.Elapsed += UpdateDisplay;
+
+            EventManager.getInstance().Register(this);
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
@@ -70,6 +75,9 @@ namespace Plugin.Bobisback.CombinedMods {
             if (displayGetDllName) {
                 GetDllName();
             }
+
+            windowRect.x = Mathf.Clamp(windowRect.x, 2f, Screen.width - windowRect.width - 2f);
+            windowRect.y = Mathf.Clamp(windowRect.y, 40f, Screen.height - windowRect.height - 2f);
         }
 
         public static void DisplayErrorMessage(string error) {
@@ -124,6 +132,9 @@ namespace Plugin.Bobisback.CombinedMods {
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Difficulty Menu", ref SettingsManager.BoolSettings[(int)Preferences.ToggleInvasionDifficultyMenu]);
+
+            //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            //guiMgr.DrawCheckBox(buttonRect, "Trade Settings", ref SettingsManager.BoolSettings[(int)Preferences.ToggleTradeSettingsMenu]);
 
             //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             //guiMgr.DrawCheckBox(buttonRect, "Settler Count Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleSettlerCount]);

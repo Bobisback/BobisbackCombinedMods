@@ -3,16 +3,18 @@ using System.Linq;
 using UnityEngine;
 using Timber_and_Stone;
 using System.Timers;
+using Timber_and_Stone.API.Event;
+using Timber_and_Stone.Event;
 
 namespace Plugin.Bobisback.CombinedMods {
-    public class GUIWindowIdleSettlers : MonoBehaviour {
+    public class GUIWindowIdleSettlers : MonoBehaviour, IEventListener {
 
         //vars needed for window placement
         private const float ButtonHeight = 32;
         private const float LeftRightMargin = 15;
         private const float TopBottomMargin = 7.5f;
         private const float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(60, 140, 300, 126);
+        private Rect windowRect = new Rect(30, 100, 300, 126);
         private const int WindowId = 501;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
@@ -31,6 +33,8 @@ namespace Plugin.Bobisback.CombinedMods {
         public void Start() {
             UpdateTimer.Elapsed += GetIdleSettlers;
             UpdateTimer.Start();
+
+            EventManager.getInstance().Register(this);
         }
 
         //This is called alot less then ongui and can have some model data manipulation in it.
@@ -78,6 +82,9 @@ namespace Plugin.Bobisback.CombinedMods {
                     windowRect = GUI.Window(WindowId, windowRect, BuildIdleSettlerMenu, string.Empty, guiMgr.windowBoxStyle);
                 }
             }
+
+            windowRect.x = Mathf.Clamp(windowRect.x, 2f, Screen.width - windowRect.width - 2f);
+            windowRect.y = Mathf.Clamp(windowRect.y, 40f, Screen.height - windowRect.height - 2f);
         }
 
         /// <summary>

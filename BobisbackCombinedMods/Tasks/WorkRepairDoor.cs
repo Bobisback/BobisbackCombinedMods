@@ -5,7 +5,6 @@ using Timber_and_Stone.Event;
 using Timber_and_Stone.Tasks;
 using UnityEngine;
 using Timber_and_Stone.Utility;
-using Plugin.Bobisback.CombinedMods.Extension_Methods;
 
 namespace Plugin.Bobisback.CombinedMods.Tasks
 {

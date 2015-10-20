@@ -15,7 +15,7 @@ namespace Plugin.Bobisback.CombinedMods
         private static readonly float LeftRightMargin = 15;
         private static readonly float TopBottomMargin = 7.5f;
         private static readonly float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(370, 200, 300, 237);
+        private Rect windowRect = new Rect(30, 120, 300, 237);
         private static readonly int WindowId = 503;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
@@ -39,6 +39,8 @@ namespace Plugin.Bobisback.CombinedMods
             foreach (Resource resource in ResourceManager.getInstance().resources.Where(resource => resource != null)) {
                 storageIndexCounts[resource.storageIndex]++;
             }
+
+            windowRect.x = Screen.width - 30 - windowRect.width;
 
             EventManager.getInstance().Register(this);
         }
@@ -67,6 +69,9 @@ namespace Plugin.Bobisback.CombinedMods
                     windowRect = GUI.Window(WindowId, windowRect, BuildOptionsMenu, string.Empty, guiMgr.windowBoxStyle);
                 }
             }
+
+            windowRect.x = Mathf.Clamp(windowRect.x, 2f, Screen.width - windowRect.width - 2f);
+            windowRect.y = Mathf.Clamp(windowRect.y, 40f, Screen.height - windowRect.height - 2f);
         }
 
         private void BuildOptionsMenu(int id)

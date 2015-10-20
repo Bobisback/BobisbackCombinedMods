@@ -13,7 +13,7 @@ namespace Plugin.Bobisback.CombinedMods
         private const float LeftRightMargin = 15;
         private const float TopBottomMargin = 7.5f;
         private const float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(370, 200, 450, 237);
+        private Rect windowRect = new Rect(0, 40, 450, 237);
         private const int WindowId = 507;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
@@ -56,6 +56,8 @@ namespace Plugin.Bobisback.CombinedMods
             amountToMutiplyDefault = 1;
             UpdateMutiplayValues();
 
+            windowRect.x = Screen.width - 130 - windowRect.width;
+
             EventManager.getInstance().Register(this);
         }
 
@@ -89,6 +91,9 @@ namespace Plugin.Bobisback.CombinedMods
                     }   
                 }
             }
+
+            windowRect.x = Mathf.Clamp(windowRect.x, 2f, Screen.width - windowRect.width - 2f);
+            windowRect.y = Mathf.Clamp(windowRect.y, 40f, Screen.height - windowRect.height - 2f);
         }
 
         private void BuildOptionsMenu(int id)

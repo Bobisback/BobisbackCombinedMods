@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.Timers;
-using Plugin.Bobisback.CombinedMods.Extension_Methods;
-using Timber_and_Stone;
 using Timber_and_Stone.API.Event;
 using Timber_and_Stone.Event;
 using Timber_and_Stone.Invasion;
 using Timber_and_Stone.Utility;
-using Random = System.Random;
 
 namespace Plugin.Bobisback.CombinedMods
 {
@@ -20,7 +17,7 @@ namespace Plugin.Bobisback.CombinedMods
         private const float LeftRightMargin = 15;
         private const float TopBottomMargin = 7.5f;
         private const float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(570, 200, 360, 237);
+        private Rect windowRect = new Rect(0, 40, 360, 237);
         private const int CreateInvasionWindowId = 505;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
@@ -47,6 +44,8 @@ namespace Plugin.Bobisback.CombinedMods
             shownInvasionPoints = "0";
             invasionPoints = 0;
 
+            windowRect.x = Screen.width - 130 - windowRect.width;
+
             EventManager.getInstance().Register(this);
         }
 
@@ -66,6 +65,9 @@ namespace Plugin.Bobisback.CombinedMods
                     windowRect = GUI.Window(CreateInvasionWindowId, windowRect, BuildCreateInvasionMenu, string.Empty, guiMgr.windowBoxStyle);
                 }
             }
+
+            windowRect.x = Mathf.Clamp(windowRect.x, 2f, Screen.width - windowRect.width - 2f);
+            windowRect.y = Mathf.Clamp(windowRect.y, 40f, Screen.height - windowRect.height - 2f);
         }
 
         private void BuildCreateInvasionMenu(int id)

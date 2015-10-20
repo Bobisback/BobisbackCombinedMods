@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
-using Plugin.Bobisback.CombinedMods.Extension_Methods;
 using Timber_and_Stone.API.Event;
 using Timber_and_Stone.Event;
 using Timber_and_Stone.Invasion;
 using Timber_and_Stone.Utility;
 using UnityEngine;
-using Random = System.Random;
 
 namespace Plugin.Bobisback.CombinedMods 
 {
@@ -19,7 +17,7 @@ namespace Plugin.Bobisback.CombinedMods
         private const float LeftRightMargin = 15;
         private const float TopBottomMargin = 7.5f;
         private const float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(670, 200, 375, 237);
+        private Rect windowRect = new Rect(200, 40, 375, 237);
         private const int InvasionDifficultyWindowId = 504;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
@@ -27,10 +25,8 @@ namespace Plugin.Bobisback.CombinedMods
 
         private static readonly Timer UpdateTimer = new Timer(500);
 
-        private float wealth;
         private int weightedWealth;
         private string shownDifficultyPrecent;
-        //private int SettingsManager.DifficultyPrecentAsInt;
 
         public static bool InvasionTiggeredByMod;
 
@@ -64,6 +60,9 @@ namespace Plugin.Bobisback.CombinedMods
             if (SettingsManager.BoolSettings[(int)Preferences.ToggleInvasionDifficultyMenu]) {
                 windowRect = GUI.Window(InvasionDifficultyWindowId, windowRect, BuildInvasionDifficultyMenu, string.Empty, guiMgr.windowBoxStyle);
             }
+
+            windowRect.x = Mathf.Clamp(windowRect.x, 2f, Screen.width - windowRect.width - 2f);
+            windowRect.y = Mathf.Clamp(windowRect.y, 40f, Screen.height - windowRect.height - 2f);
         }
 
         private void BuildInvasionDifficultyMenu(int id) {
@@ -198,8 +197,9 @@ namespace Plugin.Bobisback.CombinedMods
         }
 
         private void UpdateGameVariables(object sender, ElapsedEventArgs e) {
-            wealth = AManager<ResourceManager>.getInstance().getWealth();
             weightedWealth = CalculateWeightedWealth();
+
+            guiMgr.AddTextLine("x: " + windowRect.x + " y: " + windowRect.y);
         }
 
         [Timber_and_Stone.API.Event.EventHandler(Priority.Normal)]
