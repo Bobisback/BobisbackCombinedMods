@@ -14,7 +14,7 @@ namespace Plugin.Bobisback.CombinedMods {
         private const float LeftRightMargin = 15;
         private const float TopBottomMargin = 7.5f;
         private const float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(30, 100, 300, 126);
+        private Rect windowRect = new Rect(30, 165, 300, 126);
         private const int WindowId = 501;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();

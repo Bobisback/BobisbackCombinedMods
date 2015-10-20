@@ -13,7 +13,7 @@ namespace Plugin.Bobisback.CombinedMods {
     public enum Preferences
     {
         //GUIWindowTradeSettingsMenu
-        ToggleTradeSettingsMenu, ToggleNewTradeMenu, TradeOnGoing,
+        ToggleTradeSettingsMenu, ToggleNewTradeMenu,
         //GUIWindowInvasionDifficultyMenu
         ToggleInvasionDifficultyMenu, DifficultySettingsEnabled, NoWolfDifficultySetting, NoNecromancerDifficultySetting,
         NoGoblinDifficultySetting, NoSpiderDifficultySetting, NoUndeadDifficultySetting,
@@ -44,7 +44,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
-            false, false, false,//init GUIWindowTradeSettingsMenu
+            false, false,//init GUIWindowTradeSettingsMenu
             false, false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 
             false, false, false, true,//init door hitpoints menu
             false, //init settler count window
