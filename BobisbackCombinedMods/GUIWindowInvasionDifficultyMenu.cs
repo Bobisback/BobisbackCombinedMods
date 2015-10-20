@@ -198,8 +198,6 @@ namespace Plugin.Bobisback.CombinedMods
 
         private void UpdateGameVariables(object sender, ElapsedEventArgs e) {
             weightedWealth = CalculateWeightedWealth();
-
-            guiMgr.AddTextLine("x: " + windowRect.x + " y: " + windowRect.y);
         }
 
         [Timber_and_Stone.API.Event.EventHandler(Priority.Normal)]
