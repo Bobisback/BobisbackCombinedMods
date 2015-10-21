@@ -17,7 +17,7 @@ namespace Plugin.Bobisback.CombinedMods
         private const float ButtonHeight = 32;
         private const float LeftRightMargin = 15;
         private const float TopBottomMargin = 7.5f;
-        private const float InbetweenMargin = 2.5f;
+        private const float InbetweenMargin = 5f;
         private Rect windowRect = new Rect(30, 240, 350, 237);
         private const int TradeMenuSettingsWindowId = 510;
         private Rect openTradeWindowRect = new Rect(30, 80, 290, 47);
@@ -47,7 +47,7 @@ namespace Plugin.Bobisback.CombinedMods
         private readonly List<Transaction> TradeWindowBuyList = new List<Transaction>();
         private APlayableEntity trader;
         private bool needToCreateTransaction;
-
+        
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
         public void Start()
@@ -76,8 +76,9 @@ namespace Plugin.Bobisback.CombinedMods
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleTradeSettingsMenu]) {
                     windowRect = GUI.Window(TradeMenuSettingsWindowId, windowRect, BuildTradeMenuSettingsMenu, string.Empty, guiMgr.windowBoxStyle);
                 }
-                if (!SettingsManager.BoolSettings[(int)Preferences.ToggleNewTradeMenu]) return;
 
+                if (!SettingsManager.BoolSettings[(int)Preferences.ToggleNewTradeMenu]) return;
+                
                 if (GUIManager.getInstance().merchantTrade != null) {
                     TimeManager.getInstance().play();
                     GUIManager.getInstance().merchantTrade = null;
@@ -175,6 +176,30 @@ namespace Plugin.Bobisback.CombinedMods
             tradeWindowRect.height = buttonAboveHeight + ButtonHeight + InbetweenMargin + TopBottomMargin;
 
             GUI.DragWindow();
+
+            if (GUI.tooltip != string.Empty) {
+                ParseToolTip();
+            }
+        }
+
+        private void ParseToolTip()
+        {
+            string[] array = GUI.tooltip.Split(new char[]
+	            {
+		            "/"[0]
+	            });
+            string a = array[0];
+            if (a == "trade tooltip") {
+                int id = int.Parse(array[1]);
+                Rect rect = new Rect(Event.current.mousePosition.x + 16f, Event.current.mousePosition.y + 4f, 200f, 28f);
+                guiMgr.DrawTextLeftWhite(new Rect(rect.xMin + 6f, rect.yMin + 4f, rect.width, 28f), "Stockpiled: " + FormatNumberPostfix(guiMgr.storage[Resource.FromID(id)]));
+            }
+
+            if (a == "maxValue") {
+                int maxValue = int.Parse(array[1]);
+                Rect rect = new Rect(Event.current.mousePosition.x + 16f, Event.current.mousePosition.y + 4f, 200f, 28f);
+                guiMgr.DrawTextLeftWhite(new Rect(rect.xMin + 6f, rect.yMin + 4f, rect.width, 28f), "Max: " + maxValue);
+            }
         }
 
         private void CompleteTransactions()
@@ -213,16 +238,26 @@ namespace Plugin.Bobisback.CombinedMods
 
         private void BuildTransactionView(Transaction transaction, ref float buttonAboveHeight)
         {
-            Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, 20, ButtonHeight);
+            Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), 20, ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "", ref transaction.completeTransaction);
             buttonRect.x += 30;
             transaction.amount = BuildTextField(buttonRect, 0, transaction.maxAmount, transaction.amount);
+            buttonRect.x += 130;
+            buttonRect.width = 100;
+            buttonRect.y -= InbetweenMargin;
+            GUI.Label(buttonRect, new GUIContent(string.Empty, "trade tooltip/" + transaction.resource.index), guiMgr.boxStyle);
+            buttonRect.width = 560;
+            GUI.Label(buttonRect, new GUIContent(string.Empty), guiMgr.boxStyle);
+            buttonRect.x += 5;
+            buttonRect.width = 30;
+            GUI.DrawTexture(buttonRect, transaction.resource.icon);
 
             string temp = transaction.storageNeeded == 0 ? "" : " (" + Mathf.CeilToInt(transaction.storageNeeded) + " Storage needed)";
 
-            buttonRect.x += 130;
-            buttonRect.width = 704;
-            guiMgr.DrawTextLeftBlack(buttonRect, transaction.resource.name + " for " + 
+            buttonRect.x += 37;
+            buttonRect.y += InbetweenMargin;
+            buttonRect.width = 530;
+            guiMgr.DrawTextLeftWhite(buttonRect, transaction.resource.name + " for " + 
                 transaction.totalValue + " coin. " + transaction.value + " coin per." + temp);
 
         }
@@ -254,6 +289,7 @@ namespace Plugin.Bobisback.CombinedMods
                 value = maxValue;
             }
             string shownValue = "" + value;
+            GUI.Label(buttonRect, new GUIContent(string.Empty, "maxValue/" + maxValue));
             shownValue = guiMgr.DrawTextFieldCenteredWhite("textField", buttonRect, shownValue, 6);
             float.TryParse(shownValue, out value);
             buttonRect.x += 84;
@@ -512,6 +548,24 @@ namespace Plugin.Bobisback.CombinedMods
             TradeWindowBuyList.Add(transaction);
             resourcesBought.Add(resource);
         }
+
+        public static string FormatNumberPostfix(int number)
+        {
+            int num = (number != 0) ? ((int)Math.Log10((double)Math.Abs(number))) : 0;
+            if (num < 4) {
+                return number.ToString();
+            }
+            double num2 = (double)((int)((double)number / Math.Pow(10.0, (double)(num - 2))));
+            return (num2 * Math.Pow(10.0, (double)(num % 3 - 2))).ToString() + PostFixArray[num / 3 - 1];
+        }
+
+        private static string[] PostFixArray = new string[]
+        {
+	        "k",
+	        "M",
+	        "B",
+	        "T"
+        };
     }
 
     public class Transaction : Trade

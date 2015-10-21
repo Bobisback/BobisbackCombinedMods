@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BobisbackPluginManager.cs" />
-    <Compile Include="DefaultGUIWindow.cs" />
     <Compile Include="GUIDisplaySettlerCount.cs" />
     <Compile Include="GUIDoorHitPointsMenu.cs" />
     <Compile Include="GUIWindowControlGroup.cs" />
