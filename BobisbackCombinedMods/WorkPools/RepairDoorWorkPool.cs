@@ -14,12 +14,12 @@ namespace Plugin.Bobisback.CombinedMods.WorkPools
             Coordinate coordinate = entity.coordinate;
             WorkRepairDoor result = null;
             foreach (KeyValuePair<BuildStructure, WorkRepairDoor> current in this.pool) {
-                if (current.Key.beingBuilt) {
-                    if (current.Value.unit.taskStackContains(current.Value)) {
-                        continue;
-                    }
-                    current.Key.beingBuilt = false;
-                }
+                //if (current.Key.beingRepaired) {
+                //    if (current.Value.unit.taskStackContains(current.Value)) {
+                //        continue;
+                //    }
+                //    current.Key.beingRepaired = false;
+                //}
                 float priority = current.Value.getPriority(entity);
                 if (priority < metric) {
                     if (entity.canPerformWork(current.Value)) {

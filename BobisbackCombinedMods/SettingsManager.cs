@@ -143,8 +143,7 @@ namespace Plugin.Bobisback.CombinedMods {
                 sr.Close();
                 GUIManager.getInstance().AddTextLine("Settings Loaded");
             } catch (Exception e) {
-                File.WriteAllText("./saves/BobisbackLog.txt", "Settings Failed To Load: " + e.Message);
-                Console.WriteLine("Exception: " + e.Message);
+                WriteExceptionToLog("Settings Failed To Load: ", e);
                 GUIManager.getInstance().AddTextLine("Settings Failed To Load");
             }
         }
@@ -199,8 +198,7 @@ namespace Plugin.Bobisback.CombinedMods {
 
                 sw.Close();
             } catch (Exception e) {
-                File.WriteAllText("./saves/BobisbackLog.txt", "Settings Failed To Save Exception: " + e.Message);
-                Console.WriteLine("Exception: " + e.Message);
+                WriteExceptionToLog("Settings Failed To Save Exception: ", e);
             }
         }
 
@@ -314,6 +312,12 @@ namespace Plugin.Bobisback.CombinedMods {
                 Console.WriteLine("Exception: " + e.Message);
                 GUIManager.getInstance().AddTextLine("Failed to Convert '" + temp + "' to boolean. make sure it is 'True' or 'False'");
             }
+        }
+
+        public static void WriteExceptionToLog(string message, Exception ex)
+        {
+            File.WriteAllText("./saves/BobisbackLog.txt", "\n\n" + message + " " + ex.Message);
+            Console.WriteLine("Exception: " + ex.Message);
         }
     }
 }

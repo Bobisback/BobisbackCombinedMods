@@ -251,5 +251,28 @@ namespace Plugin.Bobisback.CombinedMods
                 evt.getUnit().hitpoints = evt.getUnit().maxHP;
             }
         }
+
+        public static void SetLevelOfSettlerProfession(string professionName, double level, bool allSettlers)
+        {
+            var units = WorldManager.getInstance().PlayerFaction.units.OfType<APlayableEntity>().Where(x => x.isAlive());
+
+            if (allSettlers)
+            {
+                var unit = units.Where(x => x.getProfession().getProfessionName().Equals(professionName, StringComparison.OrdinalIgnoreCase));
+
+                foreach (APlayableEntity aPlayableEntity in unit)
+                {
+                    aPlayableEntity.getProfession().setLevel(level);
+                }
+            }
+            else
+            {
+                var unit = units.FirstOrDefault(x => x.getProfession().getProfessionName().Equals(professionName, StringComparison.OrdinalIgnoreCase));
+
+                if (unit != default(APlayableEntity)) {
+                    unit.getProfession().setLevel(level);
+                }
+            }
+        }
     }
 }

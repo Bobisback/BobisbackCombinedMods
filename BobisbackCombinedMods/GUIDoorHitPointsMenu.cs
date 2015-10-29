@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Timers;
+using Plugin.Bobisback.CombinedMods.WorkPools;
 using Timber_and_Stone.API.Event;
 using Timber_and_Stone.Event;
+using Timber_and_Stone.Profession.Human;
 using UnityEngine;
 
 namespace Plugin.Bobisback.CombinedMods
@@ -45,6 +46,7 @@ namespace Plugin.Bobisback.CombinedMods
 
         private int amountToMutiplyDefault;
         private string shownAmountToMutiplyDefault;
+        private readonly RepairDoorWorkPool repairWorkPool = new RepairDoorWorkPool();
 
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
@@ -57,6 +59,9 @@ namespace Plugin.Bobisback.CombinedMods
             UpdateMutiplayValues();
 
             windowRect.x = Screen.width - 130 - windowRect.width;
+
+            WorldManager.getInstance().PlayerFaction.getWorkPool().RegisterPool("bobisback.repairworkpool", repairWorkPool);
+            Builder.workPools.Add("bobisback.repairworkpool");
 
             EventManager.getInstance().Register(this);
         }
@@ -185,6 +190,28 @@ namespace Plugin.Bobisback.CombinedMods
                 SetCurrentHpToNew();
                 UpdateHpOnAllDoors();
             }
+            //IEnumerable<BuildStructure> damagedDoors = theDoors.Where(DoorIsDamaged).ToArray();
+            //if (damagedDoors.Any())
+            //{
+            //    buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            //    if (guiMgr.DrawButton(buttonRect, "Add Repair Task for first door"))
+            //    {
+            //        var firstDoor = damagedDoors.First();
+            //        if (!repairWorkPool.pool.ContainsKey(firstDoor))
+            //        {
+            //            repairWorkPool.pool.Add(firstDoor, new WorkRepairDoor(repairWorkPool, firstDoor.transform));
+            //        }
+            //    }
+            //    buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            //    if (guiMgr.DrawButton(buttonRect, "Add Repair Task all doors")) {
+            //        foreach (BuildStructure buildStructure in damagedDoors)
+            //        {
+            //            if (!repairWorkPool.pool.ContainsKey(buildStructure)) {
+            //                repairWorkPool.pool.Add(buildStructure, new WorkRepairDoor(repairWorkPool, buildStructure.transform));
+            //            }
+            //        }
+            //    }
+            //}
 
             windowRect.height = buttonAboveHeight + ButtonHeight + InbetweenMargin + TopBottomMargin;
 
@@ -295,6 +322,44 @@ namespace Plugin.Bobisback.CombinedMods
             }
         }
 
+        private bool DoorIsDamaged(BuildStructure door)
+        {
+            switch (door.structureName) {
+                case "Fence Gate":
+                    if (door.health == SettingsManager.CurrentFenceHp) {
+                        return false;
+                    }
+                    break;
+                case "Timber Door":
+                    if (door.health == SettingsManager.CurrentTimberHp) {
+                        return false;
+                    }
+                    break;
+                case "Braced Door":
+                    if (door.health == SettingsManager.CurrentBracedHp) {
+                        return false;
+                    }
+                    break;
+                case "Studded Door":
+                    if (door.health == SettingsManager.CurrentStuddedHp) {
+                        return false;
+                    }
+                    break;
+                case "Dungeon Door":
+                    if (door.health == SettingsManager.CurrentDungeonHp) {
+                        return false;
+                    }
+                    break;
+                case "Castle Arch Gate":
+                case "Castle Gate":
+                    if (door.health == SettingsManager.CurrentCastleHp) {
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+
         private void UpdateGameVariables(object sender, ElapsedEventArgs e)
         {
             if (SettingsManager.BoolSettings[(int)Preferences.ShowHealthBars])
@@ -314,6 +379,8 @@ namespace Plugin.Bobisback.CombinedMods
                     }
                 }
             }
+
+            //GUIManager.getInstance().AddTextLine("Count of work pool " + repairWorkPool.pool.Count);
         }
 
         [Timber_and_Stone.API.Event.EventHandler(Priority.Normal)]

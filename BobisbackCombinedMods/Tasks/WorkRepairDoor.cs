@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Timber_and_Stone;
 using Timber_and_Stone.API.Event;
 using Timber_and_Stone.Event;
@@ -40,11 +41,12 @@ namespace Plugin.Bobisback.CombinedMods.Tasks
             EventManager.getInstance().InvokePost(toolEvent);
 
             BuildStructure buildStructure = structure.GetComponent<BuildStructure>();
-            if (buildStructure.beingBuilt)
-            {
-                yield break;
-            }
-            buildStructure.beingBuilt = true;
+            //if (buildStructure.beingRepaired)
+            //{
+            //    unit.setBubble("Door already being repaired");
+            //    yield break;
+            //}
+            //buildStructure.beingRepaired = true;
             
             ItemList requiredItems = ItemList.All();
             requiredItems.Add(ItemList.Any(tools));
@@ -107,23 +109,48 @@ namespace Plugin.Bobisback.CombinedMods.Tasks
                 yield break;
             }
 
+            unit.setBubble("beging path creation");
+
             //Each line below gives a differnet error
             //TaskSmartWalk<TaskGetPathToBlock> path = new TaskSmartWalk<TaskGetPathToBlock>(unit, (TaskSmartWalk<TaskGetPathToBlock>.DTaskPathfinder)PathFinder);
 
             //TaskSmartWalk<TaskGetPathToBlock> path = new TaskSmartWalk<TaskGetPathToBlock>(unit, (TaskSmartWalk<TaskGetPathToBlock>.DTaskPathfinder)((rules, start) => new TaskGetPathToBlock(rules, start, standPositions, unit.getModel().collider)));
             
             //TaskSmartWalk<TaskGetPathToBlock> path = new TaskSmartWalk<TaskGetPathToBlock>(unit, (rules, start) => new TaskGetPathToBlock(rules, start, standPositions, unit.getModel().collider));
+            TaskSmartWalk path = null;
+            try
+            {
+                DTaskPathfinderWrapper<TaskGetPathToBlock>.DTaskPathfinder dTaskPathfinder =
+                (rules, start) => new TaskGetPathToBlock(rules, start, standPositions, unit.getModel().collider);
+                path = (TaskSmartWalk)Activator.CreateInstance(typeof(TaskSmartWalk), unit, dTaskPathfinder);
+            }
+            catch (Exception ex)
+            {
+                GUIWindowModOptions.DisplayErrorMessage("" + ex);
+                SettingsManager.WriteExceptionToLog("Exception when doing task work.", ex);
+            }
             
-            /*yield return path;
+            if (path == null)
+            {
+                unit.setBubble("path is null");
+                yield break;
+            }
+
+            unit.setBubble("start pathing");
+
+            yield return path;
+
+            unit.setBubble("pathing complete");
             if (!path.completedSuccessfully)
             {
+                unit.setBubble("Not there yet");
                 yield break;
-            }*/
+            }
 
-            while (!buildStructure.canBuild) {
+            /*while (!buildStructure.canBuild) {
                 unit.setBubble("Cannot repair the door.");
                 yield return new TaskWait(0.5f);
-            }
+            }*/
 
             unit.LookAtIgnoreHeight(structure.position);
             unit.PlayAnimation("hammer");
@@ -140,7 +167,7 @@ namespace Plugin.Bobisback.CombinedMods.Tasks
 
                 workingPace = (.25f + (unit.getProfession().getLevel() * .05f)) * Time.deltaTime * (unit.fatigue + 0.75f);
 
-                unit.workPercent = buildStructure.Build(workingPace);
+                //unit.workPercent = buildStructure.Repair(workingPace);
                 yield return null;
             }
             while (unit.workPercent < 1.0f);
