@@ -12,6 +12,8 @@ namespace Plugin.Bobisback.CombinedMods {
     /// </summary>
     public enum Preferences
     {
+        //Resource Menu
+        ToggleResourceMenu, UnlimitedResources,
         //GUIWindowTradeSettingsMenu
         ToggleTradeSettingsMenu, ToggleNewTradeMenu,
         //GUIWindowInvasionDifficultyMenu
@@ -28,7 +30,7 @@ namespace Plugin.Bobisback.CombinedMods {
         //GUIWindowModOptions options
         ToggleOptionsMenu,
         //GUIWindowCheatMenu options
-        ToggleCheatMenu, NoHunger, NoInvasions, Invincible, InvasionsInfo, DisableLOS, EternalLight, EternalNight, UnlimitedResources,
+        ToggleCheatMenu, NoHunger, NoInvasions, Invincible, InvasionsInfo, DisableLOS, EternalLight, EternalNight,
         //Control group options
         EnableControlGroups,
         //Total number of options always needs to be last aka add more options above
@@ -44,6 +46,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
+            false, false, //init GUIWindowResourceMenu
             false, false,//init GUIWindowTradeSettingsMenu
             false, false, false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 
             false, false, false, true,//init door hitpoints menu
@@ -51,7 +54,7 @@ namespace Plugin.Bobisback.CombinedMods {
             true, //init GUIWindowTripleSpeed options
             true, false, false, false, false, false, false, //init GUIWindowIdleSettlers options
             true, //init GUIWindowModOptions options
-            false, false, false, false, false, false, false, false, false, //init GUIWindowCheatMenu options 
+            false, false, false, false, false, false, false, false, //init GUIWindowCheatMenu options 
             true //init control groups
         };
 
