@@ -21,7 +21,7 @@ namespace Plugin.Bobisback.CombinedMods {
         private static readonly float LeftRightMargin = 15;
         private static readonly float TopBottomMargin = 7.5f;
         private static readonly float InbetweenMargin = 2.5f;
-        private Rect windowRect = new Rect(150, 300, 240, 148);
+        private Rect windowRect = new Rect(150, 300, 300, 148);
         private static readonly int WindowId = 502;
 
         private readonly GUIManager guiMgr = GUIManager.getInstance();
@@ -150,7 +150,7 @@ namespace Plugin.Bobisback.CombinedMods {
             for (int i = 0; i < SettingsManager.PluginList.Count; i++) {
                 if (!SettingsManager.PluginList[i].RemoveFromListAtClose) {
                     buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2) - 20, ButtonHeight);
-                    guiMgr.DrawCheckBox(buttonRect, SettingsManager.PluginList[i].FileName, ref SettingsManager.PluginList[i].ShouldLoadPlugin);
+                    guiMgr.DrawCheckBox(buttonRect, SettingsManager.PluginList[i].FileName.Replace(".dll", ""), ref SettingsManager.PluginList[i].ShouldLoadPlugin);
 
                     if (SettingsManager.PluginList[i].ShouldLoadPlugin) {
                         if (SettingsManager.PluginList[i].DisplayToggle) {
@@ -181,13 +181,13 @@ namespace Plugin.Bobisback.CombinedMods {
         }
 
         private void GetDllName() {
-            Rect location = new Rect(Screen.width - 380, 300f, 320f, 120f);
+            Rect location = new Rect(Screen.width - 460, 300f, 400f, 120f);
             guiMgr.DrawWindow(location, "Add dll From Another Mod", false);
             if (location.Contains(Event.current.mousePosition)) {
                 guiMgr.mouseInGUI = true;
             }
             GUI.Box(new Rect(location.xMin + 20f, location.yMin + 42f, location.width - 40f, 24f), string.Empty, guiMgr.boxStyle);
-            tempName = guiMgr.DrawTextFieldCenteredWhite("dll Name", new Rect(location.xMin + 16f, location.yMin + 42f, location.width - 32f, 24f), tempName, 20);
+            tempName = guiMgr.DrawTextFieldCenteredWhite("dll Name", new Rect(location.xMin + 16f, location.yMin + 42f, location.width - 32f, 24f), tempName, 32);
             if (guiMgr.DrawButton(new Rect(location.xMin + 24f, location.yMin + 80f, 100f, 28f), "Confirm")) {
                 if (IsValidFilename(tempName)) {
                     FileInfo info = new FileInfo("./saves/" + tempName);
