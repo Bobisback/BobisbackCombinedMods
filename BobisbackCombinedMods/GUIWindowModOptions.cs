@@ -206,7 +206,7 @@ namespace Plugin.Bobisback.CombinedMods {
                         DisplayErrorMessage("File does not exist fileName: " + "saves\\" + tempName);
                     }
                 } else {
-                    DisplayErrorMessage("Invalid file name. Make sure there are no spaces");
+                    DisplayErrorMessage("Invalid file name. Make sure there are no spaces and file name is not plugin.dll.");
                 }
                 displayGetDllName = false;
             }
@@ -218,7 +218,7 @@ namespace Plugin.Bobisback.CombinedMods {
         private bool IsValidFilename(string testName) {
             Regex containsABadCharacter = new Regex("["
                   + Regex.Escape(new string(Path.GetInvalidPathChars())) + "]");
-            if (containsABadCharacter.IsMatch(testName) || testName.Contains(' ')) {
+            if (containsABadCharacter.IsMatch(testName) || testName.Contains(' ') || testName.Equals("plugin.dll", StringComparison.OrdinalIgnoreCase)) {
                 return false;
             }
             return true;
