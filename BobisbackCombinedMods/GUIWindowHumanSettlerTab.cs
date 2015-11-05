@@ -25,6 +25,8 @@ namespace Plugin.Bobisback.CombinedMods
 
         private static readonly Timer UpdateTimer = new Timer(500);
         private bool highLightTab;
+        private Vector2 preferencesScrollPosition;
+        private int prefWindowHeight;
 
         //This function is called once when this window starts up. 
         //Do any one time setup/init things in this function.
@@ -57,6 +59,7 @@ namespace Plugin.Bobisback.CombinedMods
         {
             if (this.guiMgr.inGame && settlerWindow.entity != null && !settlerWindow.rename) {
                 DrawTabs();
+                CheckForOtherTabClicks();
                 //if (settlerWindow.inventorySlot == 0) {
                 //    this.DrawTabs();
                 //}
@@ -67,6 +70,10 @@ namespace Plugin.Bobisback.CombinedMods
                 //}
                 //GUI.depth = 0;
                 //GUI.FocusWindow(5);
+                if (highLightTab)
+                {
+                    GUI.Window(5, this.windowRect, new GUI.WindowFunction(RenderWindow), string.Empty, this.guiMgr.hiddenButtonStyle);
+                }
             }
             /*if (guiMgr.inGame && !guiMgr.gameOver) {
                 if (SettingsManager.BoolSettings[(int)Preferences.ToggleCheatMenu]) {
@@ -77,9 +84,21 @@ namespace Plugin.Bobisback.CombinedMods
             windowRect = settlerWindow.windowRect;
         }
 
+        private void RenderWindow(int id)
+        {
+            Rect position = new Rect(windowRect.xMin + 6f, windowRect.yMin + 40f, windowRect.width - 20f, windowRect.height - 52f);
+            Rect viewRect = new Rect(0f, 0f, 40f, ((prefWindowHeight + 1) * 24));
+            preferencesScrollPosition = GUI.BeginScrollView(position, preferencesScrollPosition, viewRect);
+
+            if (windowRect.Contains(Event.current.mousePosition)) {
+                guiMgr.mouseInGUI = true;
+            }
+
+        }
+
         private void DrawTabs()
         {
-            Rect location = new Rect(windowRect.x - 46f, windowRect.y + 210f, 48f, 42f);
+            Rect location = new Rect(windowRect.x - 46f, windowRect.y + 210f, 48f, 48f);
             guiMgr.DrawWindow(location, string.Empty, false, true);
             if (location.Contains(Event.current.mousePosition)) {
                 guiMgr.mouseInGUI = true;
@@ -93,6 +112,11 @@ namespace Plugin.Bobisback.CombinedMods
             } else {
                 GUI.DrawTexture(new Rect(location.x + 6f, location.y + 6f, 36f, 36f), this.guiMgr.tile_preferences);
             }
+        }
+
+        private void CheckForOtherTabClicks()
+        {
+            
         }
 
         private void BuildOptionsMenu(int id)
