@@ -16,7 +16,7 @@ namespace Plugin.Bobisback.CombinedMods {
         ToggleTradeSettingsMenu, ToggleNewTradeMenu,
         //GUIWindowInvasionDifficultyMenu
         ToggleInvasionDifficultyMenu, DifficultySettingsEnabled, NoWolfDifficultySetting, NoNecromancerDifficultySetting,
-        NoGoblinDifficultySetting, NoSpiderDifficultySetting, NoUndeadDifficultySetting,
+        NoGoblinDifficultySetting, NoSpiderDifficultySetting, NoUndeadDifficultySetting, RespectDifficultyMenu,
         //Door Hitpoints Menu
         ToggleDoorHitpointsMenu, DoorHpEnabled, ShowDoorInfo, ShowHealthBars,
         //Settler count window
@@ -45,7 +45,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// </summary>
         public static bool[] BoolSettings = { 
             false, false,//init GUIWindowTradeSettingsMenu
-            false, false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 
+            false, false, false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 
             false, false, false, true,//init door hitpoints menu
             false, //init settler count window
             true, //init GUIWindowTripleSpeed options

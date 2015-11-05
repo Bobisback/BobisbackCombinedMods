@@ -82,7 +82,10 @@ namespace Plugin.Bobisback.CombinedMods
 
             float buttonAboveHeight = TopBottomMargin;
 
-            Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            Rect buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Respect Difficulty Menu", ref SettingsManager.BoolSettings[(int)Preferences.RespectDifficultyMenu]);
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawTextLeftBlack(buttonRect, "Wealth: " + wealth);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
@@ -90,25 +93,34 @@ namespace Plugin.Bobisback.CombinedMods
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Spawn Easy Invasion (" + (weightedWealth / 2) + ")")) {
-                GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+                if (!SettingsManager.BoolSettings[(int)Preferences.RespectDifficultyMenu]) {
+                    GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+                }
                 WorldManager.getInstance().SpawnInvasion(weightedWealth / 2);
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Spawn Normal Invasion (" + weightedWealth + ")")) {
-                GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+                if (!SettingsManager.BoolSettings[(int)Preferences.RespectDifficultyMenu]) {
+                    GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+                }
                 WorldManager.getInstance().SpawnInvasion(weightedWealth);
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Spawn Hard Invasion (" + (weightedWealth * 2) + ")")) {
-                GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+                if (!SettingsManager.BoolSettings[(int)Preferences.RespectDifficultyMenu]) {
+                    GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+                }
                 WorldManager.getInstance().SpawnInvasion(weightedWealth * 2);
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Spawn Insane Invasion (" + (weightedWealth * 4) + ")")) {
-                GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+                if (!SettingsManager.BoolSettings[(int) Preferences.RespectDifficultyMenu])
+                {
+                    GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+                }
                 WorldManager.getInstance().SpawnInvasion(weightedWealth * 4);
             }
 
@@ -191,7 +203,9 @@ namespace Plugin.Bobisback.CombinedMods
                 return;
             }
 
-            GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+            if (!SettingsManager.BoolSettings[(int)Preferences.RespectDifficultyMenu]) {
+                GUIWindowInvasionDifficultyMenu.InvasionTiggeredByMod = true;
+            }
 
             IInvasionGenerator invasionGenerator = generators.WeightedRandomElement(element => element.getPriority());
 
