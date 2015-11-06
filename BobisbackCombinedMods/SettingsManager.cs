@@ -12,6 +12,8 @@ namespace Plugin.Bobisback.CombinedMods {
     /// </summary>
     public enum Preferences
     {
+        //Settler Traits menu
+        ApplyTraitsToNewSettlers, ToggleSettlerTraitsMenu,
         //Resource Menu
         ToggleResourceMenu, UnlimitedResources,
         //GUIWindowTradeSettingsMenu
@@ -46,6 +48,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
+            false, false, //init GUIWindowSettlerTraitsMenu
             false, false, //init GUIWindowResourceMenu
             false, false,//init GUIWindowTradeSettingsMenu
             false, false, false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Timers;
 using Timber_and_Stone;
 using Timber_and_Stone.API.Event;
@@ -114,7 +112,7 @@ namespace Plugin.Bobisback.CombinedMods
             resetResourcesAmount = BuildTextField(buttonRect, 0, 99999, resetResourcesAmount);
             
             Resource[] resourcesWithoutNulls = resourceManager.resources.Where(x => x != null).ToArray();
-            
+
             for (int i = 0; i < resourcesWithoutNulls.Count(); i++)
             {
                 bool isOdd = i % 2 != 0;

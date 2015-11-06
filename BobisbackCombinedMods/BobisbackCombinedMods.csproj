@@ -59,6 +59,7 @@
     <Compile Include="GUIWindowIdleSettlers.cs" />
     <Compile Include="GUIWindowResourcesMenu.cs" />
     <Compile Include="GUIWindowReviveTheFallen.cs" />
+    <Compile Include="GUIWindowSettlerTraitsMenu.cs" />
     <Compile Include="GUIWindowTradeOverHaul.cs" />
     <Compile Include="GUIWindowTripleSpeed.cs" />
     <Compile Include="MainPlugin.cs" />

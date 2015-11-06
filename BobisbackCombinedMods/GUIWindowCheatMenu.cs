@@ -134,6 +134,11 @@ namespace Plugin.Bobisback.CombinedMods
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Settler Traits menu")) {
+                SettingsManager.BoolSettings[(int)Preferences.ToggleSettlerTraitsMenu] = true;
+            }
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "No Hunger", ref SettingsManager.BoolSettings[(int)Preferences.NoHunger]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
