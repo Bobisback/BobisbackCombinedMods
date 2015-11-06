@@ -12,11 +12,15 @@ namespace Plugin.Bobisback.CombinedMods {
     /// </summary>
     public enum Preferences
     {
+        //Settler Traits menu
+        ApplyTraitsToNewSettlers, ToggleSettlerTraitsMenu,
+        //Resource Menu
+        ToggleResourceMenu, UnlimitedResources,
         //GUIWindowTradeSettingsMenu
         ToggleTradeSettingsMenu, ToggleNewTradeMenu,
         //GUIWindowInvasionDifficultyMenu
         ToggleInvasionDifficultyMenu, DifficultySettingsEnabled, NoWolfDifficultySetting, NoNecromancerDifficultySetting,
-        NoGoblinDifficultySetting, NoSpiderDifficultySetting, NoUndeadDifficultySetting,
+        NoGoblinDifficultySetting, NoSpiderDifficultySetting, NoUndeadDifficultySetting, RespectDifficultyMenu,
         //Door Hitpoints Menu
         ToggleDoorHitpointsMenu, DoorHpEnabled, ShowDoorInfo, ShowHealthBars,
         //Settler count window
@@ -28,7 +32,7 @@ namespace Plugin.Bobisback.CombinedMods {
         //GUIWindowModOptions options
         ToggleOptionsMenu,
         //GUIWindowCheatMenu options
-        ToggleCheatMenu, NoHunger, NoInvasions, Invincible, InvasionsInfo, DisableLOS, EternalLight, EternalNight, UnlimitedResources,
+        ToggleCheatMenu, NoHunger, NoInvasions, Invincible, InvasionsInfo, DisableLOS, EternalLight, EternalNight,
         //Control group options
         EnableControlGroups,
         //Total number of options always needs to be last aka add more options above
@@ -44,14 +48,16 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
+            false, false, //init GUIWindowSettlerTraitsMenu
+            false, false, //init GUIWindowResourceMenu
             false, false,//init GUIWindowTradeSettingsMenu
-            false, false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 
+            false, false, false, false, false, false, false, false, //init GUIWindowInvasionDifficultyMenu 
             false, false, false, true,//init door hitpoints menu
             false, //init settler count window
             true, //init GUIWindowTripleSpeed options
             true, false, false, false, false, false, false, //init GUIWindowIdleSettlers options
             true, //init GUIWindowModOptions options
-            false, false, false, false, false, false, false, false, false, //init GUIWindowCheatMenu options 
+            false, false, false, false, false, false, false, false, //init GUIWindowCheatMenu options 
             true //init control groups
         };
 

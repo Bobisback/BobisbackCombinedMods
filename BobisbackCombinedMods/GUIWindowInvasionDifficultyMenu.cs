@@ -209,7 +209,7 @@ namespace Plugin.Bobisback.CombinedMods
                 return;
             }
 
-            if (SettingsManager.BoolSettings[(int)Preferences.DifficultySettingsEnabled] && SettingsManager.DifficultyPrecentAsInt != 100)
+            if (SettingsManager.BoolSettings[(int)Preferences.DifficultySettingsEnabled])
             {
                 //if it was not us that tiggered the invasion then cancel it and spawn a new one
                 if (!InvasionTiggeredByMod)

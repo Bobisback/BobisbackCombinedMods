@@ -22,8 +22,6 @@ namespace Plugin.Bobisback.CombinedMods
         private readonly String guiName = "Cheat Menu";
 
         private static readonly Timer UpdateTimer = new Timer(500);
-        private int[] storageIndexCounts;
-        private bool add999Resources;
 
         public static bool CreateInvasionMenu;
         public static bool ReviveTheFallenMenu;
@@ -34,11 +32,6 @@ namespace Plugin.Bobisback.CombinedMods
         {
             UpdateTimer.Elapsed += UpdateGameVariables;
             UpdateTimer.Start();
-
-            storageIndexCounts = new int[11];
-            foreach (Resource resource in ResourceManager.getInstance().resources.Where(resource => resource != null)) {
-                storageIndexCounts[resource.storageIndex]++;
-            }
 
             windowRect.x = Screen.width - 30 - windowRect.width;
 
@@ -124,18 +117,6 @@ namespace Plugin.Bobisback.CombinedMods
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            if (guiMgr.DrawButton(buttonRect, "Add 999 Resources")) {
-                if (SettingsManager.BoolSettings[(int)Preferences.UnlimitedResources]) return;
-
-                IStorage storage = WorldManager.getInstance().PlayerFaction.storage;
-                ResourceManager resourceManager = ResourceManager.getInstance();
-
-                foreach (Resource resource in resourceManager.resources.Where(resource => resource != null)) {
-                    storage.addResource(resource, 999);
-                }
-            }
-
-            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             if (guiMgr.DrawButton(buttonRect, "Clear All Corpses"))
             {
                 IFaction playerFaction = WorldManager.getInstance().PlayerFaction;
@@ -144,6 +125,17 @@ namespace Plugin.Bobisback.CombinedMods
                         unit.Destroy();
                     }
                 }
+            } 
+            
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Resources menu"))
+            {
+                SettingsManager.BoolSettings[(int)Preferences.ToggleResourceMenu] = true;
+            }
+
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            if (guiMgr.DrawButton(buttonRect, "Settler Traits menu")) {
+                SettingsManager.BoolSettings[(int)Preferences.ToggleSettlerTraitsMenu] = true;
             }
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
@@ -154,9 +146,6 @@ namespace Plugin.Bobisback.CombinedMods
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Show Invasion Info", ref SettingsManager.BoolSettings[(int)Preferences.InvasionsInfo]);
-
-            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
-            guiMgr.DrawCheckBox(buttonRect, "Unlimited Resources", ref SettingsManager.BoolSettings[(int)Preferences.UnlimitedResources]);
 
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += (ButtonHeight + InbetweenMargin), windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "Invincible", ref SettingsManager.BoolSettings[(int)Preferences.Invincible]);
@@ -202,43 +191,6 @@ namespace Plugin.Bobisback.CombinedMods
             foreach (APlayableEntity settler in WorldManager.getInstance().PlayerFaction.units.OfType<APlayableEntity>().Where(x => x.isAlive())) {
                 if (SettingsManager.BoolSettings[(int)Preferences.NoHunger]) {
                     settler.hunger = 0;
-                }
-            }
-
-            if (SettingsManager.BoolSettings[(int)Preferences.UnlimitedResources]) {
-                IStorageController storage = WorldManager.getInstance().PlayerFaction.storage as IStorageController;
-
-                if (storage == null) {
-                    GUIManager.getInstance().AddTextLine("Storage failed");
-                    return;
-                }
-
-                ResourceManager resourceManager = ResourceManager.getInstance();
-
-                foreach (Resource resource in resourceManager.resources.Where(resource => resource != null)) {
-                    storage.setStorageCap(resource.storageIndex, 10000);
-                    var totalInStorageIndex = storageIndexCounts[resource.storageIndex];
-
-                    if (totalInStorageIndex == 0 || resource.mass == 0) {
-                        continue;
-                    }
-
-                    var totalMassAvailablePerStorageIndex = (7999 / totalInStorageIndex);
-
-                    var qty = (int)(totalMassAvailablePerStorageIndex / resource.mass);
-
-                    storage.setResource(resource, qty);
-                }
-            }
-
-            if (add999Resources) {
-                add999Resources = false;
-
-                IStorage storage = WorldManager.getInstance().PlayerFaction.storage;
-                ResourceManager resourceManager = ResourceManager.getInstance();
-
-                foreach (Resource resource in resourceManager.resources) {
-                    storage.addResource(resource, 999);
                 }
             }
         }

@@ -22,6 +22,8 @@ namespace Plugin.Bobisback.CombinedMods {
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIDoorHitPointsMenu));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowInvasionDifficultyMenu));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowTradeOverHaul));
+            GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowResourcesMenu));
+            GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowSettlerTraitsMenu));
             //GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowHumanSettlerTab));
             //GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowMutiSelection));
             //GUIManager.getInstance().gameObject.AddComponent(typeof(GUIDisplaySettlerCount));
