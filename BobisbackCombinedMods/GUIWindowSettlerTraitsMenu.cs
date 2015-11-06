@@ -22,7 +22,7 @@ namespace Plugin.Bobisback.CombinedMods
 
         private static readonly Timer UpdateTimer = new Timer(500);
         
-        private readonly Dictionary<string, bool> traitsDictionary = new Dictionary<string, bool>
+        public static readonly Dictionary<string, bool> traitsDictionary = new Dictionary<string, bool>
         {
             {"trait.athletic", false}, {"trait.sluggish",  false}, {"trait.clumsy",  false}, 
             {"trait.quicklearner",  false}, {"trait.cowardly",  false}, {"trait.strongback", false}, 

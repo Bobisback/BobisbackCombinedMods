@@ -118,6 +118,13 @@ namespace Plugin.Bobisback.CombinedMods {
                     ExtractBoolean(preferenceNames[i], buffer, ref BoolSettings[i]);
                 }
 
+                for (int i = 0; i < GUIWindowSettlerTraitsMenu.traitsDictionary.Keys.Count; i++) {
+                    string key = GUIWindowSettlerTraitsMenu.traitsDictionary.Keys.ElementAt(i);
+                    if (buffer.Contains(key)) {
+                        GUIWindowSettlerTraitsMenu.traitsDictionary[key] = true;
+                    }
+                }
+
                 //get the hotkeys fro mteh file
                 for (int i = 0; i < HotKeys.Count; i++) {
                     var hotKey = HotKeys.ElementAt(i);
@@ -168,6 +175,11 @@ namespace Plugin.Bobisback.CombinedMods {
                 string[] preferenceNames = Enum.GetNames(typeof(Preferences));
                 for (int i = 0; i < BoolSettings.Length && i < preferenceNames.Length; i++) {
                     sw.WriteLine(preferenceNames[i] + " " + BoolSettings[i]);
+                }
+
+                sw.WriteLine("//Below is all the trait settings, I only store values that are true.");
+                foreach(var traits in GUIWindowSettlerTraitsMenu.traitsDictionary.Where(x => x.Value)) {
+                    sw.WriteLine(traits.Key);
                 }
 
                 //write the hotkeys to the file
