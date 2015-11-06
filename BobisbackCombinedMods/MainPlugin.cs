@@ -23,6 +23,7 @@ namespace Plugin.Bobisback.CombinedMods {
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowInvasionDifficultyMenu));
             GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowTradeOverHaul));
             //GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowHumanSettlerTab));
+            //GUIManager.getInstance().gameObject.AddComponent(typeof(GUIWindowMutiSelection));
             //GUIManager.getInstance().gameObject.AddComponent(typeof(GUIDisplaySettlerCount));
             GUIWindowModOptions.DisplayMessage("Combined Mod Loaded", "Press '" + SettingsManager.HotKeys["toggleOptionsMenuHotKey"] + "' at any time to access the options menu. Thanks for checking this mod out!");
             GUIManager.getInstance().AddTextLine("Bobisback Combined Mods v" + Assembly.GetExecutingAssembly().GetName().Version + " Loaded");
