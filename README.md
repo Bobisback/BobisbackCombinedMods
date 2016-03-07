@@ -14,3 +14,5 @@ If you want to make it so the project plays the game when you hit run in visual 
 This will allow you to hit start to start the game with the mod running.
 
 As a side note I currently have a script that copies my BobisbackCombinedMods.dll and then renames it to plugin.dll.
+
+If you like this mod and wanna help feel free to donate here: paypal.me/Bobisback
