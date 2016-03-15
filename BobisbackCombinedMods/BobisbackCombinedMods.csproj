@@ -60,6 +60,7 @@
     <Compile Include="GUIWindowMutiSelection.cs" />
     <Compile Include="GUIWindowResourcesMenu.cs" />
     <Compile Include="GUIWindowReviveTheFallen.cs" />
+    <Compile Include="GUIWindowSaveGameManager.cs" />
     <Compile Include="GUIWindowSettlerTraitsMenu.cs" />
     <Compile Include="GUIWindowTradeOverHaul.cs" />
     <Compile Include="GUIWindowTripleSpeed.cs" />

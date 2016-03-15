@@ -12,6 +12,10 @@ namespace Plugin.Bobisback.CombinedMods {
     /// </summary>
     public enum Preferences
     {
+        //Save game manager window
+        ToggleSaveGameManager, SaveEveryMinEnabled, SaveEveryGameHourEnabled,
+        SaveEveryMorning, SaveEveryAfternoon, SaveEveryEvening, SaveEveryMidnight,
+        BackupsEnabled,
         //Settler Traits menu
         ApplyTraitsToNewSettlers, ToggleSettlerTraitsMenu,
         //Resource Menu
@@ -48,6 +52,7 @@ namespace Plugin.Bobisback.CombinedMods {
         /// This is the array yhat holds the boolean settings in the mod
         /// </summary>
         public static bool[] BoolSettings = { 
+            false, false, false, false, false, false, false, false,//init GUIWindowGameSaveManager
             false, false, //init GUIWindowSettlerTraitsMenu
             false, false, //init GUIWindowResourceMenu
             false, false,//init GUIWindowTradeSettingsMenu
@@ -80,7 +85,8 @@ namespace Plugin.Bobisback.CombinedMods {
             {"nextIdleSettler", KeyCode.Period},
             {"previousGameSpeedHotkey", KeyCode.LeftArrow},
             {"nextGameSpeedHotkey", KeyCode.RightArrow},
-            {"toggleInvasionDifficultyMenuHotKey", KeyCode.L}
+            {"toggleInvasionDifficultyMenuHotKey", KeyCode.L},
+            {"toggleSaveGameManagerHotKey", KeyCode.S }
         };
 
         /// <summary>
@@ -99,8 +105,9 @@ namespace Plugin.Bobisback.CombinedMods {
         public static float CurrentStuddedHp = GUIDoorHitPointsMenu.DefaultStuddedHp;
         public static float CurrentDungeonHp = GUIDoorHitPointsMenu.DefaultDungeonHp;
         public static float CurrentCastleHp = GUIDoorHitPointsMenu.DefaultCastleHp;
-
         public static int DifficultyPrecentAsInt = 100;
+        public static float CurrentAutosaveMinCount = 1;
+        public static float CurrentBackupsCount = 1;
 
         /// <summary>
         /// This will load all the settings for the mod form a hard coded settings file name.

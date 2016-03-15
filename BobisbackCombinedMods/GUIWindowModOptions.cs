@@ -136,6 +136,9 @@ namespace Plugin.Bobisback.CombinedMods {
             buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             guiMgr.DrawCheckBox(buttonRect, "New Trade Menu", ref SettingsManager.BoolSettings[(int)Preferences.ToggleNewTradeMenu]);
 
+            buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
+            guiMgr.DrawCheckBox(buttonRect, "Save Game Manager", ref SettingsManager.BoolSettings[(int)Preferences.ToggleSaveGameManager]);
+            
             //buttonRect = new Rect(LeftRightMargin, buttonAboveHeight += ButtonHeight + InbetweenMargin, windowRect.width - (LeftRightMargin * 2), ButtonHeight);
             //guiMgr.DrawCheckBox(buttonRect, "Settler Count Mod", ref SettingsManager.BoolSettings[(int)Preferences.ToggleSettlerCount]);
 
